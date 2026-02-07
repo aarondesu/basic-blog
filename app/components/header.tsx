@@ -8,6 +8,7 @@ import {
 } from "./ui/navigation-menu";
 import { Link } from "react-router";
 import Navigation from "./navigation";
+import SearchBar from "./search-bar";
 
 export default function Header() {
   return (
@@ -15,16 +16,13 @@ export default function Header() {
       <div className="container mx-auto py-4 flex place-items-center gap-2">
         <div className="flex flex-1 items-center gap-2">
           {/* Logo */}
-          <div>Logo</div>
+          <span className="px-4 py-2">
+            {/* <Link to="/">
+              <p className="font-black select-none">MYBLOG</p>
+            </Link> */}
+          </span>
           {/* Search */}
-          <div className="flex-1">
-            <InputGroup className="">
-              <InputGroupInput placeholder="Search..." />
-              <InputGroupAddon>
-                <SearchIcon />
-              </InputGroupAddon>
-            </InputGroup>
-          </div>
+          <SearchBar />
         </div>
         <Navigation />
       </div>

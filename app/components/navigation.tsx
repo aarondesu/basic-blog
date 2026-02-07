@@ -8,6 +8,7 @@ import {
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Button } from "./ui/button";
 import { MenuIcon } from "lucide-react";
+import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 
 interface MenuLink {
   label: string;
@@ -34,9 +35,14 @@ export default function Navigation() {
 
   if (isMobile) {
     return (
-      <Button variant="outline">
-        <MenuIcon />
-      </Button>
+      <Drawer>
+        <DrawerTrigger asChild>
+          <Button variant="outline" size="icon" className="mx-2">
+            <MenuIcon />
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent>Test</DrawerContent>
+      </Drawer>
     );
   } else {
     return (
@@ -51,7 +57,7 @@ export default function Navigation() {
           ))}
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link to="/account">Sign In</Link>
+              <Link to="/login">Sign In</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
