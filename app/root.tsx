@@ -12,6 +12,8 @@ import "./app.css";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import { Toaster } from "sonner";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,7 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <>
+    <Provider store={store}>
       <Toaster />
       <div className="min-h-svh flex flex-col">
         <Header />
@@ -55,7 +57,7 @@ export default function App() {
         </main>
         <Footer />
       </div>
-    </>
+    </Provider>
   );
 }
 
