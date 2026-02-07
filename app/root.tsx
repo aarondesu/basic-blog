@@ -14,6 +14,9 @@ import Footer from "./components/footer";
 import { Toaster } from "sonner";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
+import { getSupabaseServerClient } from "./lib/supabase";
+import { useAppDispatch } from "./redux/hooks";
+import { setAuthenticated } from "./redux/reducers/auth";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,13 +49,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const client = getSupabaseServerClient(request);
+  const { data, error } = await client.auth.getUser();
+
+  return {
+    isAuthenticated: error === null,
+  };
+}
+
+export default function App({ loaderData }: Route.ComponentProps) {
+  store.dispatch(setAuthenticated(loaderData.isAuthenticated));
+
   return (
     <Provider store={store}>
       <Toaster />
       <div className="min-h-svh flex flex-col">
         <Header />
-        <main className="flex-1">
+        <main className="flex-1 grid">
           <Outlet />
         </main>
         <Footer />

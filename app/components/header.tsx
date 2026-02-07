@@ -17,9 +17,9 @@ export default function Header() {
         <div className="flex flex-1 items-center gap-2">
           {/* Logo */}
           <span className="px-4 py-2">
-            {/* <Link to="/">
-              <p className="font-black select-none">MYBLOG</p>
-            </Link> */}
+            <Link to="/">
+              <p className="font-black select-none">myBlog</p>
+            </Link>
           </span>
           {/* Search */}
           <SearchBar />

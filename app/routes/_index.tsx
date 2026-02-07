@@ -9,10 +9,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "My Blog | Home" },
+    { title: "myBlog | Home" },
     {
       name: "description",
-      content: "Welcome to my blog!",
+      content: "Welcome to myBlog!",
     },
   ];
 }

@@ -4,37 +4,43 @@ import {
   serializeCookieHeader,
   type CookieMethodsServer,
 } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+let client: SupabaseClient | null = null;
 
 export function getSupabaseServerClient(request: Request) {
-  const headers = new Headers(request.headers);
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  if (!client) {
+    const headers = new Headers(request.headers);
 
-  const cookies: CookieMethodsServer = {
-    getAll: () => {
-      const cookieHeader = request.headers.get("Cookie");
-      if (!cookieHeader) {
-        return null;
-      }
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-      return parseCookieHeader(cookieHeader).map((cookie) => ({
-        name: cookie.name,
-        value: cookie.value ?? "",
-      }));
-    },
-    setAll: (cookiesToSet) => {
-      cookiesToSet.forEach(({ name, value, options }) =>
-        headers.append(
-          "Set-Cookie",
-          serializeCookieHeader(name, value, options),
-        ),
-      );
-    },
-  };
+    const cookies: CookieMethodsServer = {
+      getAll: () => {
+        const cookieHeader = request.headers.get("Cookie");
+        if (!cookieHeader) {
+          return null;
+        }
 
-  const client = createServerClient(supabaseUrl!, supabaseKey!, {
-    cookies: cookies,
-  });
+        return parseCookieHeader(cookieHeader).map((cookie) => ({
+          name: cookie.name,
+          value: cookie.value ?? "",
+        }));
+      },
+      setAll: (cookiesToSet) => {
+        cookiesToSet.forEach(({ name, value, options }) =>
+          headers.append(
+            "Set-Cookie",
+            serializeCookieHeader(name, value, options),
+          ),
+        );
+      },
+    };
+
+    client = createServerClient(supabaseUrl!, supabaseKey!, {
+      cookies: cookies,
+    });
+  }
 
   return client;
 }

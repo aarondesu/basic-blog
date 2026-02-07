@@ -2,10 +2,10 @@ import type { Route } from "./+types/blogs";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "My Blog | Blogs" },
+    { title: "myBlog | Blogs" },
     {
       name: "description",
-      content: "Welcome to my blog!",
+      content: "Welcome to myBlog!",
     },
   ];
 }
