@@ -12,8 +12,12 @@ import "./app.css";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import { Toaster } from "sonner";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { store } from "./redux/store";
+import { getSupabaseServerClient } from "./lib/supabase";
+import { useAppDispatch, useAppSelector } from "./redux/hooks";
+import { checkAuth, setAuthenticated } from "./redux/reducers/auth";
+import { Loader2Icon } from "lucide-react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,13 +50,38 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export async function clientLoader({ request }: Route.LoaderArgs) {
+  // const { isAuthenticated } = store.getState().auth;
+  // const client = getSupabaseServerClient(request);
+  // const { data, error } = await client.auth.getUser();
+  // return {
+  //   isAuthenticated: data.user !== null,
+  // };
+
+  store.dispatch(checkAuth(request));
+}
+
+export function HydrateFallback() {
+  return (
+    <div>
+      <Loader2Icon className="animate-spin" />
+    </div>
+  );
+}
+
+export default function App({ loaderData }: Route.ComponentProps) {
+  // const { isAuthenticated } = store.getState().auth;
+
+  // if (!isAuthenticated && loaderData.isAuthenticated) {
+  //   store.dispatch(setAuthenticated(loaderData.isAuthenticated));
+  // }
+
   return (
     <Provider store={store}>
       <Toaster />
       <div className="min-h-svh flex flex-col">
         <Header />
-        <main className="flex-1">
+        <main className="flex-1 grid">
           <Outlet />
         </main>
         <Footer />

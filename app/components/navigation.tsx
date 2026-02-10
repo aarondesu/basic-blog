@@ -9,6 +9,7 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { Button } from "./ui/button";
 import { MenuIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
+import { useAppSelector } from "~/redux/hooks";
 
 interface MenuLink {
   label: string;
@@ -30,8 +31,13 @@ const links: MenuLink[] = [
   },
 ];
 
+export function HydrateFallback() {
+  return <div>test</div>;
+}
+
 export default function Navigation() {
   const isMobile = useIsMobile();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   if (isMobile) {
     return (
@@ -57,7 +63,11 @@ export default function Navigation() {
           ))}
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link to="/login">Sign In</Link>
+              {isAuthenticated === true ? (
+                <Link to="/logout">Logout</Link>
+              ) : (
+                <Link to="/login">Sign In</Link>
+              )}
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>

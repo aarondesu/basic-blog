@@ -1,28 +1,26 @@
-import type { Route } from "./+types/_auth.login";
+import type { Route } from "./+types/_auth.register";
 
-import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   Link,
+  redirect,
   useNavigate,
   useNavigation,
   useSubmit,
-  redirect,
 } from "react-router";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-
-import { type LoginData } from "~/types";
+import { Button } from "~/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
 } from "~/components/ui/card";
-import { loginSchema } from "~/schemas";
 import {
   Field,
   FieldError,
@@ -30,39 +28,25 @@ import {
   FieldLabel,
 } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
 import { getSupabaseServerClient } from "~/lib/supabase";
-import { store } from "~/redux/store";
 import { setAuthenticated } from "~/redux/reducers/auth";
-import { useDispatch } from "react-redux";
+import { store } from "~/redux/store";
+import { registerUserSchema } from "~/schemas";
+import type { ReigsterData } from "~/types";
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
-  // Get needed variables
+export async function action({ request }: Route.ActionArgs) {
   const client = getSupabaseServerClient(request);
   const formData = await request.formData();
 
-  // Attempt to login user with Supabase
-  const { data, error } = await client.auth.signInWithPassword({
+  // Attempt to create a user
+  const { data, error } = await client.auth.signUp({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   });
 
-  // Set authenticated
-  if (data.user !== null && !error) {
-    store.dispatch(setAuthenticated(true));
-  }
+  store.dispatch(setAuthenticated(true));
 
   return { data, error };
-}
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "myBlog | Login" },
-    {
-      name: "description",
-      content: "Login to your account.",
-    },
-  ];
 }
 
 export function clientLoader() {
@@ -71,26 +55,29 @@ export function clientLoader() {
 
   // if authenticated, redirect to home page
   if (isAuthenticated) {
+    toast.error("Already logged in!");
     throw redirect("/");
   }
 }
 
-export default function Login({ actionData }: Route.ComponentProps) {
-  // Get navigation
+export function meta({}: Route.MetaArgs) {
+  return [{ title: "myBlog | Register" }];
+}
+
+export default function Register({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  // Create RHF object with Zod validation
-  const form = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<ReigsterData>({
+    resolver: zodResolver(registerUserSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirm_password: "",
     },
   });
 
-  // Handle submit function, will use react router's action to submit form data
+  // Handle register submit, same as login
   const submit = useSubmit();
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
@@ -98,47 +85,43 @@ export default function Login({ actionData }: Route.ComponentProps) {
       formData.append(key, value);
     });
 
-    submit(formData, { action: "/login", method: "POST" });
+    submit(formData, { action: "/register", method: "POST" });
   });
 
-  // Check action data
+  // Check if successfully
   useEffect(() => {
+    if (actionData?.error) {
+      toast.error(actionData.error.message);
+    }
+
     // Check if successful
-    if (
-      actionData?.data.user &&
-      !actionData.error &&
-      navigation.state !== "loading"
-    ) {
-      toast.info("Successfully logged in!");
+    if (actionData?.data && !actionData.error) {
+      toast.info("Successfully registered!");
       navigate("/");
     }
-  }, [actionData, navigation]);
+  }, [actionData]);
 
   return (
     <Card className="space-y-4 w-full max-w-sm max-h-fit m-auto">
       <CardHeader>
-        <CardTitle>Login To Your Account</CardTitle>
-        <CardDescription>Fill in the following details</CardDescription>
+        <CardTitle>Register an Account</CardTitle>
+        <CardDescription>
+          Fill in the following details to create an account
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {actionData?.error && actionData.error.message && (
-          <div className="border border-destructive bg-destructive/8 px-2 py-2 text-destructive text-sm ">
-            {actionData?.error?.message}
-          </div>
-        )}
-        <form onSubmit={onSubmit} id="login-form">
+      <CardContent>
+        <form onSubmit={onSubmit} id="register-form">
           <FieldGroup>
             <Controller
               name="email"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Email</FieldLabel>
+                  <FieldLabel>Email*</FieldLabel>
                   <Input
                     {...field}
                     type="email"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Email Address"
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -151,12 +134,28 @@ export default function Login({ actionData }: Route.ComponentProps) {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Password</FieldLabel>
+                  <FieldLabel>Password*</FieldLabel>
                   <Input
                     {...field}
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Password"
+                  />
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="confirm_password"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Confirm Password*</FieldLabel>
+                  <Input
+                    {...field}
+                    type="password"
+                    aria-invalid={fieldState.invalid}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -171,21 +170,21 @@ export default function Login({ actionData }: Route.ComponentProps) {
         <Button
           type="submit"
           className="w-full"
-          form="login-form"
+          form="register-form"
           disabled={navigation.state === "submitting"}
         >
           {navigation.state === "submitting" && (
             <Loader2Icon className="animate-spin" />
           )}
-          Login
+          Register
         </Button>
         <span className="text-center">
-          <p className="text-sm">New account?</p>
+          <p className="text-sm">Already have an account?</p>
           <Link
-            to="/register"
+            to="/login"
             className="underline text-sm text-muted-foreground hover:text-accent-foreground"
           >
-            Sign up
+            Sign in
           </Link>
         </span>
       </CardFooter>

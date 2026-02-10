@@ -1,7 +1,6 @@
 import type { Route } from "./+types/_index";
 import Hero from "~/components/hero";
 import { getSupabaseServerClient } from "~/lib/supabase";
-import { getSession } from "~/lib/session";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
@@ -9,10 +8,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "My Blog | Home" },
+    { title: "myBlog | Home" },
     {
       name: "description",
-      content: "Welcome to my blog!",
+      content: "Welcome to myBlog!",
     },
   ];
 }
