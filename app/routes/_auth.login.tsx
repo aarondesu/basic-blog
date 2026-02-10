@@ -31,12 +31,15 @@ import {
 } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { getSupabaseServerClient } from "~/lib/supabase";
+import {
+  getSupabaseBrowserClient,
+  getSupabaseServerClient,
+} from "~/lib/supabase";
 import { store } from "~/redux/store";
 import { setAuthenticated } from "~/redux/reducers/auth";
 import { useDispatch } from "react-redux";
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   // Get needed variables
   const client = getSupabaseServerClient(request);
   const formData = await request.formData();
@@ -47,10 +50,12 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     password: formData.get("password") as string,
   });
 
-  // Set authenticated
-  if (data.user !== null && !error) {
-    store.dispatch(setAuthenticated(true));
-  }
+  // console.log(data);
+
+  // // Set authenticated
+  // if (data.user !== null && !error) {
+  //   store.dispatch(setAuthenticated(true));
+  // }
 
   return { data, error };
 }
@@ -65,14 +70,18 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export function clientLoader() {
-  // Check if authenticated
-  const { isAuthenticated } = store.getState().auth;
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  const client = getSupabaseBrowserClient();
+  const result = await client.auth.getUser();
 
-  // if authenticated, redirect to home page
-  if (isAuthenticated) {
-    throw redirect("/");
-  }
+  console.log(result);
+
+  // // Check if authenticated
+  // const { isAuthenticated } = store.getState().auth;
+  // // if authenticated, redirect to home page
+  // if (isAuthenticated) {
+  //   throw redirect("/");
+  // }
 }
 
 export default function Login({ actionData }: Route.ComponentProps) {
@@ -109,6 +118,8 @@ export default function Login({ actionData }: Route.ComponentProps) {
       !actionData.error &&
       navigation.state !== "loading"
     ) {
+      dispatch(setAuthenticated(true));
+
       toast.info("Successfully logged in!");
       navigate("/");
     }

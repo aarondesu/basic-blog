@@ -7,17 +7,12 @@ import { setAuthenticated } from "~/redux/reducers/auth";
 import { redirect, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 
-export async function clientLoader({ request }: Route.LoaderArgs) {
-  const { isAuthenticated } = store.getState().auth;
+export async function loader({ request }: Route.LoaderArgs) {
+  const client = getSupabaseServerClient(request);
+  const session = await client.auth.getSession();
+  const result = await client.auth.signOut();
 
-  if (isAuthenticated) {
-    const client = getSupabaseServerClient(request);
-    const result = await client.auth.signOut();
-
-    return true;
-  }
-
-  return false;
+  return result.error !== null;
 }
 
 export default function Logout({ loaderData }: Route.ComponentProps) {

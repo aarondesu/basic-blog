@@ -1,13 +1,15 @@
 import {
   createServerClient,
+  createBrowserClient,
   parseCookieHeader,
   serializeCookieHeader,
   type CookieMethodsServer,
 } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "~/supabase";
+import type { Database } from "~/database.types";
 
-let client: SupabaseClient | null = null;
+let client: SupabaseClient<Database> | null = null;
+let browserClient: SupabaseClient<Database> | null = null;
 
 export function getSupabaseServerClient(request: Request) {
   if (!client) {
@@ -44,4 +46,15 @@ export function getSupabaseServerClient(request: Request) {
   }
 
   return client;
+}
+
+export function getSupabaseBrowserClient() {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!browserClient) {
+    browserClient = createBrowserClient(supabaseUrl, supabaseKey);
+  }
+
+  return browserClient;
 }

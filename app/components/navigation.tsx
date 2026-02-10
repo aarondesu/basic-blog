@@ -10,6 +10,7 @@ import { Button } from "./ui/button";
 import { MenuIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { useAppSelector } from "~/redux/hooks";
+import { useEffect, useState } from "react";
 
 interface MenuLink {
   label: string;
@@ -31,13 +32,11 @@ const links: MenuLink[] = [
   },
 ];
 
-export function HydrateFallback() {
-  return <div>test</div>;
-}
-
-export default function Navigation() {
+export default async function Navigation() {
   const isMobile = useIsMobile();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {}, [isAuthenticated]);
 
   if (isMobile) {
     return (
