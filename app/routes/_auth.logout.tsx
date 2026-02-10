@@ -5,16 +5,14 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { setAuthenticated } from "~/redux/reducers/auth";
 import { redirect, useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function clientLoader({ request }: Route.LoaderArgs) {
   const { isAuthenticated } = store.getState().auth;
 
   if (isAuthenticated) {
     const client = getSupabaseServerClient(request);
-    await client.auth.signOut();
-
-    store.dispatch(setAuthenticated(false));
-    redirect("/");
+    const result = await client.auth.signOut();
 
     return true;
   }
@@ -26,8 +24,11 @@ export default function Logout({ loaderData }: Route.ComponentProps) {
   const success = loaderData;
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (success) {
+      dispatch(setAuthenticated(false));
       toast.info("Successfully logged out!");
     } else {
       toast.warning("You are not logged in!");
@@ -36,5 +37,5 @@ export default function Logout({ loaderData }: Route.ComponentProps) {
     navigate("/");
   }, [success]);
 
-  return <></>;
+  return <div>Logging out...</div>;
 }

@@ -1,7 +1,6 @@
 import type { Route } from "./+types/_index";
 import Hero from "~/components/hero";
 import { getSupabaseServerClient } from "~/lib/supabase";
-import { getSession } from "~/lib/session";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);

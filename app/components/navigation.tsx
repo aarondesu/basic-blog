@@ -31,6 +31,10 @@ const links: MenuLink[] = [
   },
 ];
 
+export function HydrateFallback() {
+  return <div>test</div>;
+}
+
 export default function Navigation() {
   const isMobile = useIsMobile();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -59,7 +63,7 @@ export default function Navigation() {
           ))}
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              {isAuthenticated ? (
+              {isAuthenticated === true ? (
                 <Link to="/logout">Logout</Link>
               ) : (
                 <Link to="/login">Sign In</Link>

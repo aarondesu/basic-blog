@@ -34,8 +34,9 @@ import { Button } from "~/components/ui/button";
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { store } from "~/redux/store";
 import { setAuthenticated } from "~/redux/reducers/auth";
+import { useDispatch } from "react-redux";
 
-export async function action({ request }: Route.ClientActionArgs) {
+export async function clientAction({ request }: Route.ClientActionArgs) {
   // Get needed variables
   const client = getSupabaseServerClient(request);
   const formData = await request.formData();
@@ -47,7 +48,9 @@ export async function action({ request }: Route.ClientActionArgs) {
   });
 
   // Set authenticated
-  store.dispatch(setAuthenticated(true));
+  if (data.user !== null && !error) {
+    store.dispatch(setAuthenticated(true));
+  }
 
   return { data, error };
 }
@@ -68,7 +71,6 @@ export function clientLoader() {
 
   // if authenticated, redirect to home page
   if (isAuthenticated) {
-    toast.error("Already logged in!");
     throw redirect("/");
   }
 }
@@ -77,6 +79,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
   // Get navigation
   const navigation = useNavigation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Create RHF object with Zod validation
   const form = useForm<LoginData>({
@@ -100,17 +103,16 @@ export default function Login({ actionData }: Route.ComponentProps) {
 
   // Check action data
   useEffect(() => {
-    // Check if error
-    if (actionData?.error) {
-      toast.error(actionData.error.message);
-    }
-
     // Check if successful
-    if (actionData?.data && !actionData.error) {
+    if (
+      actionData?.data.user &&
+      !actionData.error &&
+      navigation.state !== "loading"
+    ) {
       toast.info("Successfully logged in!");
       navigate("/");
     }
-  }, [actionData]);
+  }, [actionData, navigation]);
 
   return (
     <Card className="space-y-4 w-full max-w-sm max-h-fit m-auto">
@@ -118,7 +120,12 @@ export default function Login({ actionData }: Route.ComponentProps) {
         <CardTitle>Login To Your Account</CardTitle>
         <CardDescription>Fill in the following details</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        {actionData?.error && actionData.error.message && (
+          <div className="border border-destructive bg-destructive/8 px-2 py-2 text-destructive text-sm ">
+            {actionData?.error?.message}
+          </div>
+        )}
         <form onSubmit={onSubmit} id="login-form">
           <FieldGroup>
             <Controller
