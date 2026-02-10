@@ -5,6 +5,7 @@ import {
   type CookieMethodsServer,
 } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "~/supabase";
 
 let client: SupabaseClient | null = null;
 
@@ -37,7 +38,7 @@ export function getSupabaseServerClient(request: Request) {
       },
     };
 
-    client = createServerClient(supabaseUrl!, supabaseKey!, {
+    client = createServerClient<Database>(supabaseUrl!, supabaseKey!, {
       cookies: cookies,
     });
   }
