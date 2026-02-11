@@ -7,15 +7,14 @@ type Args = {
   description: string;
 };
 
-const bg_image = "./pexels-andreea-ch-371539-1166644.jpg";
-
 export default function Hero({ title, description }: Args) {
   return (
     <div
       className={cn(
-        `bg-[url('./pexels-andreea-ch-371539-1166644.jpg')]`,
+        // `bg-[url('./images/pexels-andreea-ch-371539-1166644.jpg')]`,
+        `bg-[url('../public/assets/images/pexels-andreea-ch-371539-1166644.jpg')]`,
         "bg-cover bg-no-repeat bg-bottom-left md:bg-bottom",
-        "flex h-svh md:h-200",
+        "flex h-svh md:h-full",
       )}
     >
       <div className="space-y-6 w-100 m-auto items-center text-center">
