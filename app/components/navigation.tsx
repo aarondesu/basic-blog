@@ -95,7 +95,9 @@ export default function Navigation() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Link to="/login">Login</Link>
+          <Link to="/login" className="text-sm">
+            Login
+          </Link>
         )}
       </div>
     );
