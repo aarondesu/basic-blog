@@ -22,18 +22,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Index() {
-  const client = getSupabaseBrowserClient();
-
-  const onClick = useCallback(async () => {
-    const test = await client.auth.getUser();
-
-    console.log(test);
-  }, [client]);
-
   return (
     <div className="">
       <Hero title="Welcome to my Blog" description="Lorem Ipsum" />
-      <Button onClick={onClick}>test</Button>
     </div>
   );
 }
