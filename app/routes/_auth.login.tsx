@@ -57,7 +57,14 @@ export async function action({ request }: Route.ActionArgs) {
 
   // Display error if error, redirect page to home if successfully logged in
   if (result.error) {
-    return { error: result.error };
+    return data(
+      { error: result.error },
+      {
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
+      },
+    );
   } else {
     session.flash("message", "Successfully logged in!");
     return redirect("/", {
