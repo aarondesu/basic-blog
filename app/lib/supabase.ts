@@ -16,7 +16,7 @@ export function getSupabaseServerClient(request: Request) {
     const headers = new Headers(request.headers);
 
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
     const cookies: CookieMethodsServer = {
       getAll: () => {
@@ -50,7 +50,7 @@ export function getSupabaseServerClient(request: Request) {
 
 export function getSupabaseBrowserClient() {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   if (!browserClient) {
     browserClient = createBrowserClient(supabaseUrl, supabaseKey);

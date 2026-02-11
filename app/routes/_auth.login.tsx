@@ -75,22 +75,21 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "myBlog | Login" },
-    {
-      name: "description",
-      content: "Login to your account.",
-    },
-  ];
-}
-
 export async function loader({ request }: Route.LoaderArgs) {
+  // Get server session
+  const session = await getSession(request.headers.get("Cookie"));
+
   const client = getSupabaseServerClient(request);
   const user = (await client.auth.getUser()).data.user;
 
   if (user !== null) {
-    throw redirect("/");
+    session.flash("error", { message: "You are already logged in" });
+
+    throw redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
   }
 
   // // Check if authenticated
@@ -99,6 +98,16 @@ export async function loader({ request }: Route.LoaderArgs) {
   // if (isAuthenticated) {
   //   throw redirect("/");
   // }
+}
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "myBlog | Login" },
+    {
+      name: "description",
+      content: "Login to your account.",
+    },
+  ];
 }
 
 export default function Login({ actionData }: Route.ComponentProps) {
