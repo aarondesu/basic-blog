@@ -19,6 +19,8 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
+import avatarDefault from "~/assets/user.png";
+
 interface MenuLink {
   label: string;
   url: string;
@@ -76,7 +78,7 @@ export default function Navigation() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar size="sm">
-                  <AvatarImage src="./user.png" alt="user" />
+                  <AvatarImage src={avatarDefault} alt="user" />
                   <AvatarFallback>U</AvatarFallback>
                   <AvatarBadge>
                     <ChevronDown />
