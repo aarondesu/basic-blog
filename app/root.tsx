@@ -5,19 +5,19 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  data,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import Header from "./components/header";
 import Footer from "./components/footer";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import { Provider, useDispatch } from "react-redux";
 import { store } from "./redux/store";
 import { getSupabaseServerClient } from "./lib/supabase";
-import { useAppDispatch, useAppSelector } from "./redux/hooks";
-import { checkAuth, setAuthenticated } from "./redux/reducers/auth";
-import { Loader2Icon } from "lucide-react";
+import { setAuthenticated } from "./redux/reducers/auth";
+import { commitSession, getSession } from "./server.session";
 import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
@@ -52,14 +52,44 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const client = getSupabaseServerClient(request);
-  const { data, error } = await client.auth.getUser();
+  // Handle flash message
+  const session = await getSession(request.headers.get("Cookie"));
 
-  return data.user !== null;
+  // Handle user authentication
+  const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
+
+  return data(
+    {
+      isAuthenticated: user !== null,
+      flash: {
+        error: session.get("error"),
+        message: session.get("message"),
+      },
+    },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    },
+  );
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
-  store.dispatch(setAuthenticated(loaderData));
+  // Set authenticated
+  store.dispatch(setAuthenticated(loaderData.isAuthenticated));
+
+  // Handle flash messages
+  const { error, message } = loaderData.flash;
+  useEffect(() => {
+    if (error) {
+      toast.error(`${error.code}: ${error.message}`);
+    }
+
+    if (message) {
+      toast.info(message);
+    }
+  }, [error, message]);
 
   return (
     <Provider store={store}>

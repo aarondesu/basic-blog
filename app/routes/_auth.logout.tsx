@@ -1,36 +1,32 @@
-import { store } from "~/redux/store";
+import { redirect } from "react-router";
 import type { Route } from "./+types/_auth.logout";
 import { getSupabaseServerClient } from "~/lib/supabase";
-import { useEffect } from "react";
-import { toast } from "sonner";
-import { setAuthenticated } from "~/redux/reducers/auth";
-import { redirect, useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
+import { commitSession, getSession } from "~/server.session";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const client = getSupabaseServerClient(request);
-  const session = await client.auth.getSession();
-  const result = await client.auth.signOut();
+  const session = await getSession(request.headers.get("Cookie"));
 
-  return result.error !== null;
+  const client = getSupabaseServerClient(request);
+  const { error } = await client.auth.signOut();
+
+  // Check error if logging out
+  if (error) {
+    session.flash("error", {
+      code: error.code,
+      message: error.message,
+    });
+  } else {
+    session.flash("message", "Successfully logged out!");
+  }
+
+  // Redirect to home
+  return redirect("/", {
+    headers: {
+      "Set-Cookie": await commitSession(session),
+    },
+  });
 }
 
 export default function Logout({ loaderData }: Route.ComponentProps) {
-  const success = loaderData;
-  const navigate = useNavigate();
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (success) {
-      dispatch(setAuthenticated(false));
-      toast.info("Successfully logged out!");
-    } else {
-      toast.warning("You are not logged in!");
-    }
-
-    navigate("/");
-  }, [success]);
-
   return <div>Logging out...</div>;
 }

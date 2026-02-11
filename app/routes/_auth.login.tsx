@@ -8,6 +8,7 @@ import {
   useNavigation,
   useSubmit,
   redirect,
+  data,
 } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,26 +39,33 @@ import {
 import { store } from "~/redux/store";
 import { setAuthenticated } from "~/redux/reducers/auth";
 import { useDispatch } from "react-redux";
+import { commitSession, getSession } from "~/server.session";
 
 export async function action({ request }: Route.ActionArgs) {
+  // Get server session
+  const session = await getSession(request.headers.get("Cookie"));
+
   // Get needed variables
   const client = getSupabaseServerClient(request);
   const formData = await request.formData();
 
   // Attempt to login user with Supabase
-  const { data, error } = await client.auth.signInWithPassword({
+  const result = await client.auth.signInWithPassword({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   });
 
-  // console.log(data);
-
-  // // Set authenticated
-  // if (data.user !== null && !error) {
-  //   store.dispatch(setAuthenticated(true));
-  // }
-
-  return { data, error };
+  // Display error if error, redirect page to home if successfully logged in
+  if (result.error) {
+    return { error: result.error };
+  } else {
+    session.flash("message", "Successfully logged in!");
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  }
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -70,11 +78,13 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const client = getSupabaseBrowserClient();
-  const result = await client.auth.getUser();
+export async function loader({ request }: Route.LoaderArgs) {
+  const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
 
-  console.log(result);
+  if (user !== null) {
+    throw redirect("/");
+  }
 
   // // Check if authenticated
   // const { isAuthenticated } = store.getState().auth;
@@ -109,21 +119,6 @@ export default function Login({ actionData }: Route.ComponentProps) {
 
     submit(formData, { action: "/login", method: "POST" });
   });
-
-  // Check action data
-  useEffect(() => {
-    // Check if successful
-    if (
-      actionData?.data.user &&
-      !actionData.error &&
-      navigation.state !== "loading"
-    ) {
-      dispatch(setAuthenticated(true));
-
-      toast.info("Successfully logged in!");
-      navigate("/");
-    }
-  }, [actionData, navigation]);
 
   return (
     <Card className="space-y-4 w-full max-w-sm max-h-fit m-auto">
