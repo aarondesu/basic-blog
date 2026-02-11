@@ -24,7 +24,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Index() {
   return (
     <div className="">
-      <Hero title="Welcome to my Blog" description="Lorem Ipsum" />
+      <Hero title="Welcome to myBlog" description="Lorem Ipsum" />
     </div>
   );
 }

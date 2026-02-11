@@ -101,7 +101,27 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      blogs_view: {
+        Row: {
+          created_at: string | null;
+          id: number | null;
+          short_description: string | null;
+          title: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: number | null;
+          short_description?: never;
+          title?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: number | null;
+          short_description?: never;
+          title?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       [_ in never]: never;
