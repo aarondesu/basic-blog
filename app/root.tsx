@@ -83,7 +83,8 @@ export default function App({ loaderData }: Route.ComponentProps) {
   const { error, message } = loaderData.flash;
   useEffect(() => {
     if (error) {
-      toast.error(`${error.code}: ${error.message}`);
+      // Display error message, display error code if supplied
+      toast.error([error.code && `${error.code}: `, error.message]);
     }
 
     if (message) {
