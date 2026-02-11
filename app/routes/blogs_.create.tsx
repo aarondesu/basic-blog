@@ -1,8 +1,9 @@
+import { Loader2Icon } from "lucide-react";
 import type { Route } from "./+types/blogs_.create";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { useSubmit } from "react-router";
+import { data, redirect, useNavigation, useSubmit } from "react-router";
 import z from "zod";
 import { Button } from "~/components/ui/button";
 import {
@@ -13,6 +14,8 @@ import {
 } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
+import { getSupabaseServerClient } from "~/lib/supabase";
+import { commitSession, getSession } from "~/server.session";
 
 // Temp
 const blogSchema = z.object({
@@ -21,7 +24,68 @@ const blogSchema = z.object({
   body: z.string().min(1, "Body is required"),
 });
 
-export async function action({ request }: Route.ActionArgs) {}
+export async function action({ request }: Route.ActionArgs) {
+  // Get needed variables
+  const session = await getSession(request.headers.get("Cookie"));
+  const client = getSupabaseServerClient(request);
+  const formData = await request.formData();
+
+  // Attempt to insert into database
+  const { error } = await client.from("blogs").insert({
+    user_id: formData.get("user_id") as string,
+    title: formData.get("title") as string,
+    image_url: formData.get("image_url") as string,
+    body: formData.get("body") as string,
+  });
+
+  // Check if error
+  if (error) {
+    return data(
+      { error: error },
+      { headers: { "Set-Cookie": await commitSession(session) } },
+    );
+  } else {
+    session.flash("message", "Successfully created blog!");
+
+    return redirect("/blogs", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  }
+}
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
+
+  // Authenticate route, must be logged in to create a blog
+  if (!user) {
+    session.flash("error", {
+      code: "401",
+      message: "You must be logged in to continue",
+    });
+
+    throw redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  }
+
+  return data(
+    {
+      user: user,
+    },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    },
+  );
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -33,7 +97,11 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function CreateBlog({}: Route.ComponentProps) {
+export default function CreateBlog({ loaderData }: Route.ComponentProps) {
+  const navigation = useNavigation();
+
+  const { user } = loaderData;
+
   const form = useForm<z.infer<typeof blogSchema>>({
     resolver: zodResolver(blogSchema),
     defaultValues: {
@@ -48,6 +116,7 @@ export default function CreateBlog({}: Route.ComponentProps) {
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
+    formData.append("user_id", user.id); // Append the user id into the form data
 
     submit(formData, { action: "/blogs/create", method: "POST" });
   });
@@ -70,6 +139,7 @@ export default function CreateBlog({}: Route.ComponentProps) {
                   aria-invalid={fieldState.invalid}
                   placeholder="Enter Title..."
                   className="max-w-93.75"
+                  disabled={navigation.state === "loading"}
                 />
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -86,6 +156,7 @@ export default function CreateBlog({}: Route.ComponentProps) {
                   aria-invalid={fieldState.invalid}
                   placeholder="Enter Title..."
                   className="max-w-93.75"
+                  disabled={navigation.state === "loading"}
                 />
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -97,13 +168,29 @@ export default function CreateBlog({}: Route.ComponentProps) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="col-span-2">
                 <FieldLabel>Body</FieldLabel>
-                <Textarea {...field} className="h-87.5" />
+                <Textarea
+                  {...field}
+                  className="h-87.5"
+                  disabled={navigation.state === "loading"}
+                />
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
-          <div className="flex">
-            <Button type="submit">Create</Button>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="reset"
+              variant="outline"
+              disabled={navigation.state === "loading"}
+            >
+              Reset
+            </Button>
+            <Button type="submit" disabled={navigation.state === "loading"}>
+              {navigation.state === "loading" && (
+                <Loader2Icon className="animate-spin" />
+              )}
+              Create
+            </Button>
           </div>
         </FieldGroup>
       </form>
