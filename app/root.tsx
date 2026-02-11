@@ -97,7 +97,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
       <Toaster />
       <div className="min-h-svh flex flex-col">
         <Header />
-        <main className="flex-1 grid">
+        <main className="flex-1 grid mb-6">
           <Outlet />
         </main>
         <Footer />

@@ -16,6 +16,7 @@ const { getSession, commitSession, destroySession } =
   createCookieSessionStorage<SessionFlashData>({
     cookie: {
       name: "__session",
+      secrets: ["myBlogSessionCookie"],
     },
   });
 
