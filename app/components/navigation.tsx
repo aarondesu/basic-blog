@@ -1,3 +1,4 @@
+"user client";
 import { Link } from "react-router";
 import {
   NavigationMenu,
@@ -7,14 +8,21 @@ import {
 } from "./ui/navigation-menu";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Button } from "./ui/button";
-import { MenuIcon } from "lucide-react";
+import { ChevronDown, MenuIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { useAppSelector } from "~/redux/hooks";
-import { useEffect, useState } from "react";
+import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 interface MenuLink {
   label: string;
   url: string;
+  prefetch?: boolean;
 }
 
 const links: MenuLink[] = [
@@ -25,18 +33,13 @@ const links: MenuLink[] = [
   {
     label: "Blogs",
     url: "/blogs",
-  },
-  {
-    label: "About",
-    url: "/about",
+    prefetch: true,
   },
 ];
 
-export default async function Navigation() {
+export default function Navigation() {
   const isMobile = useIsMobile();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
-
-  useEffect(() => {}, [isAuthenticated]);
 
   if (isMobile) {
     return (
@@ -51,26 +54,50 @@ export default async function Navigation() {
     );
   } else {
     return (
-      <NavigationMenu>
-        <NavigationMenuList>
-          {links.map((link, index) => (
-            <NavigationMenuItem key={index}>
-              <NavigationMenuLink asChild>
-                <Link to={link.url}>{link.label}</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          ))}
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              {isAuthenticated === true ? (
-                <Link to="/logout">Logout</Link>
-              ) : (
-                <Link to="/login">Sign In</Link>
-              )}
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+      <div className="flex gap-2 items-center">
+        <NavigationMenu>
+          <NavigationMenuList>
+            {links.map((link, index) => (
+              <NavigationMenuItem key={index}>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to={link.url}
+                    prefetch={link.prefetch ? "intent" : "none"}
+                  >
+                    {link.label}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            ))}
+          </NavigationMenuList>
+        </NavigationMenu>
+        {isAuthenticated ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <Avatar size="sm">
+                  <AvatarImage src="./user.png" alt="user" />
+                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarBadge>
+                    <ChevronDown />
+                  </AvatarBadge>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                {isAuthenticated === true ? (
+                  <Link to="/logout">Logout</Link>
+                ) : (
+                  <Link to="/login">Sign In</Link>
+                )}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Link to="/login">Login</Link>
+        )}
+      </div>
     );
   }
 }
