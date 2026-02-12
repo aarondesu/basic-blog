@@ -3,16 +3,18 @@ import {
   getSupabaseServerClient,
 } from "~/lib/supabase";
 import type { Route } from "./+types/blogs_.view.$id";
-import { data } from "react-router";
+import { data, Link } from "react-router";
 import dayjs from "dayjs";
+import { useAppSelector } from "~/redux/hooks";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
+
   const result = await client
     .from("view_blog_with_username")
     .select("*")
     .eq("id", Number(params.id))
-    .range(0, 1);
+    .limit(1);
 
   // Check if no blog is found
   if (result.data && result.data.length === 0) {
@@ -42,12 +44,20 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export default function ViewBlog({ loaderData }: Route.ComponentProps) {
   const { blog } = loaderData;
+  const { roles, user_id: id } = useAppSelector((state) => state.auth);
 
   return (
     <div className="container mx-auto space-y-6 my-4">
       <div className="space-y-4">
         <div className="">
-          <h1 className="text-3xl font-black">{blog?.title}</h1>
+          <span className="flex">
+            <h1 className="text-3xl font-black">{blog?.title}</h1>
+            {roles.includes("Admin") && blog?.user_id === id && (
+              <span className="text-sm text-muted-foreground">
+                <Link to={`/blogs/edit/${blog?.id}`}>Edit</Link>
+              </span>
+            )}
+          </span>
           <span className="flex gap-2">
             <p className="font-medium text-muted-foreground text-sm">
               {dayjs(blog?.created_at).format("MMM DD, YYYY HH:mm:ss")}
