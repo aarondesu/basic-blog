@@ -75,6 +75,13 @@ export type Database = {
             referencedRelation: "blogs_view";
             referencedColumns: ["uid"];
           },
+          {
+            foreignKeyName: "blogs_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "view_blog_with_username";
+            referencedColumns: ["user_id"];
+          },
         ];
       };
       media: {
@@ -131,6 +138,13 @@ export type Database = {
             referencedRelation: "blogs_view";
             referencedColumns: ["uid"];
           },
+          {
+            foreignKeyName: "profiles_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "view_blog_with_username";
+            referencedColumns: ["user_id"];
+          },
         ];
       };
       roles: {
@@ -176,6 +190,13 @@ export type Database = {
             referencedRelation: "blogs_view";
             referencedColumns: ["uid"];
           },
+          {
+            foreignKeyName: "user_roles_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "view_blog_with_username";
+            referencedColumns: ["user_id"];
+          },
         ];
       };
     };
@@ -185,9 +206,22 @@ export type Database = {
           author: string | null;
           created_at: string | null;
           id: number | null;
+          image_url: string | null;
           short_description: string | null;
           title: string | null;
           uid: string | null;
+        };
+        Relationships: [];
+      };
+      view_blog_with_username: {
+        Row: {
+          author: string | null;
+          body: string | null;
+          created_at: string | null;
+          id: number | null;
+          image_url: string | null;
+          title: string | null;
+          user_id: string | null;
         };
         Relationships: [];
       };
