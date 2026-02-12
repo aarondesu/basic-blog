@@ -26,7 +26,3 @@ export async function loader({ request }: Route.LoaderArgs) {
     },
   });
 }
-
-export default function Logout({ loaderData }: Route.ComponentProps) {
-  return <div>Logging out...</div>;
-}
