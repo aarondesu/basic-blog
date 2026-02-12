@@ -8,12 +8,13 @@ export const loginSchema = z.object({
 export const userSchema = z.object({
   uid: z.string().optional(),
   email: z.email().min(1, "Email is required"),
-  display_name: z.string().optional(),
+  username: z.string(),
   created_at: z.date().optional(),
 });
 
 export const registerUserSchema = z
   .object({
+    username: z.string(),
     email: z.email().min(1, "Email address is required"),
     password: z.string().min(1, "Password is required"),
     confirm_password: z.string().min(1, "Confirm Password is required"),
@@ -22,3 +23,9 @@ export const registerUserSchema = z
     message: "Passwords do not match",
     path: ["confirm_password"],
   });
+
+export const blogSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  image_url: z.string().optional(),
+  body: z.string().min(1, "Body is required"),
+});

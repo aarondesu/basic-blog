@@ -5,19 +5,20 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  data,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import Header from "./components/header";
 import Footer from "./components/footer";
-import { Toaster } from "sonner";
+import { toast, Toaster } from "sonner";
 import { Provider, useDispatch } from "react-redux";
 import { store } from "./redux/store";
 import { getSupabaseServerClient } from "./lib/supabase";
-import { useAppDispatch, useAppSelector } from "./redux/hooks";
-import { checkAuth, setAuthenticated } from "./redux/reducers/auth";
-import { Loader2Icon } from "lucide-react";
+import { setAuthenticated, setUserInfo } from "./redux/reducers/auth";
+import { commitSession, getSession } from "./server.session";
+import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -50,38 +51,81 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export async function clientLoader({ request }: Route.LoaderArgs) {
-  // const { isAuthenticated } = store.getState().auth;
-  // const client = getSupabaseServerClient(request);
-  // const { data, error } = await client.auth.getUser();
-  // return {
-  //   isAuthenticated: data.user !== null,
-  // };
+export async function loader({ request }: Route.LoaderArgs) {
+  // Handle flash message
+  const session = await getSession(request.headers.get("Cookie"));
 
-  store.dispatch(checkAuth(request));
-}
+  // Handle user authentication
+  const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
+  const profile = user
+    ? (
+        await client
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user?.id ?? "")
+      ).data?.at(0)
+    : undefined;
+  const roles = user
+    ? (
+        await client
+          .from("user_roles")
+          .select("roles(role_name)")
+          .eq("user_id", String(user?.id))
+      ).data
+    : undefined;
 
-export function HydrateFallback() {
-  return (
-    <div>
-      <Loader2Icon className="animate-spin" />
-    </div>
+  return data(
+    {
+      isAuthenticated: user !== null,
+      profile: profile,
+      roles: roles,
+      user_id: user?.id,
+      flash: {
+        error: session.get("error"),
+        message: session.get("message"),
+      },
+    },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    },
   );
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
-  // const { isAuthenticated } = store.getState().auth;
+  const { isAuthenticated, roles, flash, profile, user_id } = loaderData;
 
-  // if (!isAuthenticated && loaderData.isAuthenticated) {
-  //   store.dispatch(setAuthenticated(loaderData.isAuthenticated));
-  // }
+  // Set authenticated
+  store.dispatch(setAuthenticated(isAuthenticated));
+  store.dispatch(
+    setUserInfo({
+      username: profile?.username ?? "unavailable",
+      roles: roles?.map((role) => role.roles.role_name) ?? [],
+      user_id: user_id ?? "unavailable",
+    }),
+  );
+
+  // Handle flash messages
+  const { error, message } = flash;
+  useEffect(() => {
+    if (error) {
+      // Display error message, display error code if supplied
+      toast.error([error.code && `${error.code}: `, error.message]);
+    }
+
+    if (message) {
+      toast.info(message);
+    }
+  }, [error, message]);
 
   return (
     <Provider store={store}>
       <Toaster />
       <div className="min-h-svh flex flex-col">
         <Header />
-        <main className="flex-1 grid">
+        <main className="flex-1 grid mb-6">
           <Outlet />
         </main>
         <Footer />

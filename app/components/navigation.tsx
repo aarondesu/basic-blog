@@ -1,3 +1,4 @@
+"user client";
 import { Link } from "react-router";
 import {
   NavigationMenu,
@@ -7,13 +8,23 @@ import {
 } from "./ui/navigation-menu";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Button } from "./ui/button";
-import { MenuIcon } from "lucide-react";
+import { ChevronDown, MenuIcon, PlusIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { useAppSelector } from "~/redux/hooks";
+import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+
+import avatarDefault from "~/assets/user.png";
 
 interface MenuLink {
   label: string;
   url: string;
+  prefetch?: boolean;
 }
 
 const links: MenuLink[] = [
@@ -25,17 +36,11 @@ const links: MenuLink[] = [
     label: "Blogs",
     url: "/blogs",
   },
-  {
-    label: "About",
-    url: "/about",
-  },
 ];
 
-export function HydrateFallback() {
-  return <div>test</div>;
-}
-
 export default function Navigation() {
+  const { roles } = useAppSelector((state) => state.auth);
+
   const isMobile = useIsMobile();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
@@ -52,26 +57,62 @@ export default function Navigation() {
     );
   } else {
     return (
-      <NavigationMenu>
-        <NavigationMenuList>
-          {links.map((link, index) => (
-            <NavigationMenuItem key={index}>
-              <NavigationMenuLink asChild>
-                <Link to={link.url}>{link.label}</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          ))}
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              {isAuthenticated === true ? (
-                <Link to="/logout">Logout</Link>
-              ) : (
-                <Link to="/login">Sign In</Link>
-              )}
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+      <div className="flex gap-2 items-center">
+        <NavigationMenu>
+          <NavigationMenuList>
+            {links.map((link, index) => (
+              <NavigationMenuItem key={index}>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to={link.url}
+                    prefetch={link.prefetch ? "intent" : "none"}
+                    reloadDocument
+                  >
+                    {link.label}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            ))}
+            {roles.includes("Admin") && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link to="/blogs/create">
+                    <PlusIcon />
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
+          </NavigationMenuList>
+        </NavigationMenu>
+        {isAuthenticated ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <Avatar size="sm" className="bg-muted-foreground">
+                  <AvatarImage src={avatarDefault} alt="user" />
+                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarBadge>
+                    <ChevronDown />
+                  </AvatarBadge>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                {isAuthenticated === true ? (
+                  <Link to="/logout">Logout</Link>
+                ) : (
+                  <Link to="/login">Sign In</Link>
+                )}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Link to="/login" className="text-sm">
+            Login
+          </Link>
+        )}
+      </div>
     );
   }
 }

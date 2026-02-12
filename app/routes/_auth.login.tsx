@@ -1,6 +1,5 @@
 import type { Route } from "./+types/_auth.login";
 
-import { useEffect } from "react";
 import { Loader2Icon } from "lucide-react";
 import {
   Link,
@@ -8,10 +7,10 @@ import {
   useNavigation,
   useSubmit,
   redirect,
+  data,
 } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 
 import { type LoginData } from "~/types";
 import {
@@ -32,27 +31,59 @@ import {
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { getSupabaseServerClient } from "~/lib/supabase";
-import { store } from "~/redux/store";
-import { setAuthenticated } from "~/redux/reducers/auth";
 import { useDispatch } from "react-redux";
+import { commitSession, getSession } from "~/server.session";
 
-export async function clientAction({ request }: Route.ClientActionArgs) {
+export async function action({ request }: Route.ActionArgs) {
+  // Get server session
+  const session = await getSession(request.headers.get("Cookie"));
+
   // Get needed variables
   const client = getSupabaseServerClient(request);
   const formData = await request.formData();
 
   // Attempt to login user with Supabase
-  const { data, error } = await client.auth.signInWithPassword({
+  const result = await client.auth.signInWithPassword({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   });
 
-  // Set authenticated
-  if (data.user !== null && !error) {
-    store.dispatch(setAuthenticated(true));
+  // Display error if error, redirect page to home if successfully logged in
+  if (result.error) {
+    return data(
+      { error: result.error },
+      {
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
+      },
+    );
+  } else {
+    session.flash("message", "Successfully logged in!");
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
   }
+}
 
-  return { data, error };
+export async function loader({ request }: Route.LoaderArgs) {
+  // Get server session
+  const session = await getSession(request.headers.get("Cookie"));
+
+  const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
+
+  if (user !== null) {
+    session.flash("error", { message: "You are already logged in" });
+
+    throw redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  }
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -65,21 +96,10 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export function clientLoader() {
-  // Check if authenticated
-  const { isAuthenticated } = store.getState().auth;
-
-  // if authenticated, redirect to home page
-  if (isAuthenticated) {
-    throw redirect("/");
-  }
-}
-
 export default function Login({ actionData }: Route.ComponentProps) {
   // Get navigation
   const navigation = useNavigation();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const isLoading = navigation.state !== "idle";
 
   // Create RHF object with Zod validation
   const form = useForm<LoginData>({
@@ -100,19 +120,6 @@ export default function Login({ actionData }: Route.ComponentProps) {
 
     submit(formData, { action: "/login", method: "POST" });
   });
-
-  // Check action data
-  useEffect(() => {
-    // Check if successful
-    if (
-      actionData?.data.user &&
-      !actionData.error &&
-      navigation.state !== "loading"
-    ) {
-      toast.info("Successfully logged in!");
-      navigate("/");
-    }
-  }, [actionData, navigation]);
 
   return (
     <Card className="space-y-4 w-full max-w-sm max-h-fit m-auto">
@@ -139,6 +146,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
                     type="email"
                     aria-invalid={fieldState.invalid}
                     placeholder="Email Address"
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -157,6 +165,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
                     type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="Password"
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -172,7 +181,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
           type="submit"
           className="w-full"
           form="login-form"
-          disabled={navigation.state === "submitting"}
+          disabled={isLoading}
         >
           {navigation.state === "submitting" && (
             <Loader2Icon className="animate-spin" />

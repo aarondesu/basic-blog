@@ -5,6 +5,7 @@ import { Loader2Icon } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+  data,
   Link,
   redirect,
   useNavigate,
@@ -32,31 +33,65 @@ import { getSupabaseServerClient } from "~/lib/supabase";
 import { setAuthenticated } from "~/redux/reducers/auth";
 import { store } from "~/redux/store";
 import { registerUserSchema } from "~/schemas";
+import { commitSession, getSession } from "~/server.session";
 import type { ReigsterData } from "~/types";
 
 export async function action({ request }: Route.ActionArgs) {
+  // Get server session
+  const session = await getSession(request.headers.get("Cookie"));
+
   const client = getSupabaseServerClient(request);
   const formData = await request.formData();
 
   // Attempt to create a user
-  const { data, error } = await client.auth.signUp({
+  const result = await client.auth.signUp({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
+    options: {
+      data: {
+        username: formData.get("username") as string,
+      },
+    },
   });
 
   store.dispatch(setAuthenticated(true));
 
-  return { data, error };
+  if (result.error) {
+    return data(
+      { error: result.error },
+      {
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
+      },
+    );
+  } else {
+    session.flash("message", "Successfully registered!");
+
+    // Redirect to home after registering
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  }
 }
 
-export function clientLoader() {
-  // Check if authenticated
-  const { isAuthenticated } = store.getState().auth;
+export async function loader({ request }: Route.LoaderArgs) {
+  // Get server session
+  const session = await getSession(request.headers.get("Cookie"));
 
-  // if authenticated, redirect to home page
-  if (isAuthenticated) {
-    toast.error("Already logged in!");
-    throw redirect("/");
+  const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
+
+  if (user !== null) {
+    session.flash("error", { message: "You are already logged in" });
+
+    throw redirect("/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
   }
 }
 
@@ -66,7 +101,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Register({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
-  const navigate = useNavigate();
+  const isLoading = navigation.state !== "idle";
 
   const form = useForm<ReigsterData>({
     resolver: zodResolver(registerUserSchema),
@@ -74,6 +109,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
       email: "",
       password: "",
       confirm_password: "",
+      username: "",
     },
   });
 
@@ -88,19 +124,6 @@ export default function Register({ actionData }: Route.ComponentProps) {
     submit(formData, { action: "/register", method: "POST" });
   });
 
-  // Check if successfully
-  useEffect(() => {
-    if (actionData?.error) {
-      toast.error(actionData.error.message);
-    }
-
-    // Check if successful
-    if (actionData?.data && !actionData.error) {
-      toast.info("Successfully registered!");
-      navigate("/");
-    }
-  }, [actionData]);
-
   return (
     <Card className="space-y-4 w-full max-w-sm max-h-fit m-auto">
       <CardHeader>
@@ -110,8 +133,26 @@ export default function Register({ actionData }: Route.ComponentProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {actionData?.error && actionData.error.message && (
+          <div className="border border-destructive bg-destructive/8 px-2 py-2 text-destructive text-sm ">
+            {actionData?.error?.message}
+          </div>
+        )}
         <form onSubmit={onSubmit} id="register-form">
           <FieldGroup>
+            <Controller
+              name="username"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Username*</FieldLabel>
+                  <Input {...field} aria-invalid={fieldState.invalid} />
+                  {fieldState.error && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
             <Controller
               name="email"
               control={form.control}
@@ -122,6 +163,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
                     {...field}
                     type="email"
                     aria-invalid={fieldState.invalid}
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -139,6 +181,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
                     {...field}
                     type="password"
                     aria-invalid={fieldState.invalid}
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -156,6 +199,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
                     {...field}
                     type="password"
                     aria-invalid={fieldState.invalid}
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -171,7 +215,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
           type="submit"
           className="w-full"
           form="register-form"
-          disabled={navigation.state === "submitting"}
+          disabled={isLoading}
         >
           {navigation.state === "submitting" && (
             <Loader2Icon className="animate-spin" />

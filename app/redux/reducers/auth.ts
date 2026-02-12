@@ -7,10 +7,16 @@ import { getSupabaseServerClient } from "~/lib/supabase";
 
 interface AuthState {
   isAuthenticated: boolean;
+  username: string | undefined;
+  user_id: string | undefined;
+  roles: string[];
 }
 
 const initialState: AuthState = {
   isAuthenticated: false,
+  username: undefined,
+  user_id: undefined,
+  roles: [],
 };
 
 // Async Thunks
@@ -31,6 +37,18 @@ export const authSlice = createSlice({
     setAuthenticated: (state, action: PayloadAction<boolean>) => {
       state.isAuthenticated = action.payload;
     },
+    setUserInfo: (
+      state,
+      action: PayloadAction<{
+        username: string;
+        roles: string[];
+        user_id: string;
+      }>,
+    ) => {
+      state.username = action.payload.username;
+      state.roles = action.payload.roles;
+      state.user_id = action.payload.user_id;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(checkAuth.fulfilled, (state, action) => {
@@ -42,6 +60,6 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setAuthenticated } = authSlice.actions;
+export const { setAuthenticated, setUserInfo } = authSlice.actions;
 
 export default authSlice.reducer;
