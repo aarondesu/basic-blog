@@ -1,28 +1,14 @@
-import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
-import type { Route } from "./+types/blogs_.create";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { data, redirect, useNavigation, useSubmit } from "react-router";
-import z, { file } from "zod";
-import { Button } from "~/components/ui/button";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import {
-  getSupabaseBrowserClient,
-  getSupabaseServerClient,
-} from "~/lib/supabase";
-import { blogSchema } from "~/schemas";
-import { commitSession, getSession } from "~/server.session";
+import type { PostgrestError } from "@supabase/supabase-js";
+import { useCallback, useState } from "react";
+import { Controller, useForm, useFormContext } from "react-hook-form";
+import { useNavigation, useSubmit } from "react-router";
+import { useAppSelector } from "~/redux/hooks";
+import type { BlogData } from "~/types";
+import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 import {
   FileUpload,
-  FileUploadClear,
   FileUploadDropzone,
   FileUploadItem,
   FileUploadItemDelete,
@@ -32,95 +18,115 @@ import {
   FileUploadList,
   FileUploadTrigger,
   type FileUploadProps,
-} from "~/components/ui/file-upload";
-import { useCallback, useEffect, useState } from "react";
+} from "../ui/file-upload";
+import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
+import { Button } from "../ui/button";
+import { getSupabaseBrowserClient } from "~/lib/supabase";
 import { toast } from "sonner";
 import { randString } from "~/lib/utils";
-import { store } from "~/redux/store";
-import BlogForm from "~/components/forms/blog.form";
+import { blogSchema } from "~/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type z from "zod";
 
-// Temp
+type Args = {
+  mode: "create" | "edit";
+  data?: BlogData;
+  error?: PostgrestError;
+};
 
-export async function action({ request }: Route.ActionArgs) {
-  // Get needed variables
-  const session = await getSession(request.headers.get("Cookie"));
-  const client = getSupabaseServerClient(request);
-  const formData = await request.formData();
-
-  // Attempt to insert into database
-  const { error } = await client.from("blogs").insert({
-    user_id: formData.get("user_id") as string,
-    title: formData.get("title") as string,
-    image_url: formData.get("image_url") as string,
-    body: formData.get("body") as string,
+/**
+ * Reusable form for both creating and editing the blog
+ * @param param0
+ * @returns
+ */
+export default function BlogForm({ mode, data, error }: Args) {
+  const { user_id } = useAppSelector((state) => state.auth);
+  const navigation = useNavigation();
+  const form = useForm<z.infer<typeof blogSchema>>({
+    resolver: zodResolver(blogSchema),
+    defaultValues: {
+      title: "",
+      body: "",
+    },
   });
 
-  // Check if error
-  if (error) {
-    return data(
-      { error: error },
-      { headers: { "Set-Cookie": await commitSession(session) } },
-    );
-  } else {
-    session.flash("message", "Successfully created blog!");
+  // Handle Submiting of form to action
+  const submit = useSubmit();
+  const onSubmit = useCallback(
+    form.handleSubmit((data) => {
+      const formData = new FormData();
+      Object.entries(data).forEach(([Key, value]) => {
+        formData.append(Key, value);
+      });
 
-    return redirect("/blogs", {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
-    });
-  }
-}
+      formData.append("user_id", user_id ?? "undefined");
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const client = getSupabaseServerClient(request);
-
-  // const user = (await client.auth.getUser()).data.user;
-  const { isAuthenticated, user_id } = store.getState().auth;
-  const { roles } = store.getState().auth;
-
-  // Authenticate route, must be logged in to create a blog
-  if (!isAuthenticated || roles.includes("Admin") === false) {
-    // Display unauthorized error
-    throw data(null, { status: 401, statusText: "Unauthorized" });
-  }
-
-  return data(
-    {
-      user_id: user_id,
-    },
-    {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
-    },
+      submit(formData, {
+        action: mode === "create" ? "/blogs/create" : "/blogs/edit",
+        method: "POST",
+      });
+    }),
+    [form],
   );
-}
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "myBlog | Create Blog" },
-    {
-      name: "description",
-      content: "Welcome to my blog!",
+  // Handle uploading of image
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const isLoading = navigation.state !== "idle";
+  const [files, setFiles] = useState<File[]>([]);
+  const client = getSupabaseBrowserClient();
+
+  const onFileReject = useCallback((file: File, message: string) => {
+    toast.error(message, {
+      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+    });
+  }, []);
+
+  const onUpload: NonNullable<FileUploadProps["onUpload"]> = useCallback(
+    async (files, { onError, onProgress, onSuccess }) => {
+      try {
+        setIsUploading(true);
+
+        const uploadPromises = files.map(async (file) => {
+          if (!client) return;
+
+          const bucketResult = await client.storage
+            .from("images")
+            .upload(`${randString()}-${randString()}`, file, {
+              cacheControl: "3600",
+              upsert: false,
+            });
+
+          if (bucketResult.error) {
+            onError(file, {
+              name: bucketResult.error.name,
+              message: bucketResult.error.message,
+            });
+          }
+
+          const { data } = await client.storage
+            .from("images")
+            .getPublicUrl(bucketResult.data?.path ?? "");
+
+          // Set image_url
+          form.setValue("image_url", data.publicUrl);
+
+          onSuccess(file);
+        });
+
+        await Promise.all(uploadPromises);
+        setIsUploading((state) => (state = false));
+      } catch (error) {
+        console.error("Unexpected error during upload:", error);
+      }
     },
-  ];
-}
+    [],
+  );
 
-export default function CreateBlog({
-  loaderData,
-  actionData,
-}: Route.ComponentProps) {
   return (
-    <div className="container mx-auto px-4 md:px-0">
-      <div>
-        <h1 className="text-3xl font-bold mb-6">Create a Blog</h1>
-      </div>
-      {actionData?.error && <div>{actionData.error.message}</div>}
-
-      {/* <form onSubmit={onSubmit}>
-        <FieldGroup className="">
+    <div className="">
+      {error && <div>{error.message}</div>}
+      <form onSubmit={onSubmit}>
+        <FieldGroup>
           <Controller
             name="title"
             control={form.control}
@@ -202,6 +208,7 @@ export default function CreateBlog({
               </Field>
             )}
           />
+
           <Controller
             name="body"
             control={form.control}
@@ -236,8 +243,7 @@ export default function CreateBlog({
             </Button>
           </div>
         </FieldGroup>
-      </form> */}
-      <BlogForm mode="create" error={actionData?.error} />
+      </form>
     </div>
   );
 }

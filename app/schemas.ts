@@ -23,3 +23,9 @@ export const registerUserSchema = z
     message: "Passwords do not match",
     path: ["confirm_password"],
   });
+
+export const blogSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  image_url: z.string().optional(),
+  body: z.string().min(1, "Body is required"),
+});
