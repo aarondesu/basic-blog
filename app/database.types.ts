@@ -67,7 +67,15 @@ export type Database = {
           udpated_at?: string;
           user_id?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "blogs_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "blogs_view";
+            referencedColumns: ["uid"];
+          },
+        ];
       };
       media: {
         Row: {
@@ -99,14 +107,87 @@ export type Database = {
         };
         Relationships: [];
       };
+      profiles: {
+        Row: {
+          created_at: string | null;
+          user_id: string;
+          username: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          user_id: string;
+          username: string;
+        };
+        Update: {
+          created_at?: string | null;
+          user_id?: string;
+          username?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "profiles_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "blogs_view";
+            referencedColumns: ["uid"];
+          },
+        ];
+      };
+      roles: {
+        Row: {
+          id: number;
+          role_name: string;
+        };
+        Insert: {
+          id?: number;
+          role_name: string;
+        };
+        Update: {
+          id?: number;
+          role_name?: string;
+        };
+        Relationships: [];
+      };
+      user_roles: {
+        Row: {
+          role_id: number;
+          user_id: string;
+        };
+        Insert: {
+          role_id: number;
+          user_id?: string;
+        };
+        Update: {
+          role_id?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_role_id_fkey";
+            columns: ["role_id"];
+            isOneToOne: false;
+            referencedRelation: "roles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "blogs_view";
+            referencedColumns: ["uid"];
+          },
+        ];
+      };
     };
     Views: {
       blogs_view: {
         Row: {
+          author: string | null;
           created_at: string | null;
           id: number | null;
           short_description: string | null;
           title: string | null;
+          uid: string | null;
         };
         Relationships: [];
       };
