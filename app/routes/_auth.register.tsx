@@ -49,7 +49,7 @@ export async function action({ request }: Route.ActionArgs) {
     password: formData.get("password") as string,
     options: {
       data: {
-        display_name: formData.get("display_name") as string,
+        username: formData.get("username") as string,
       },
     },
   });
@@ -109,7 +109,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
       email: "",
       password: "",
       confirm_password: "",
-      display_name: "",
+      username: "",
     },
   });
 
@@ -141,7 +141,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
         <form onSubmit={onSubmit} id="register-form">
           <FieldGroup>
             <Controller
-              name="display_name"
+              name="username"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
