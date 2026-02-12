@@ -35,6 +35,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { randString } from "~/lib/utils";
+import { store } from "~/redux/store";
 
 // Temp
 const blogSchema = z.object({
@@ -79,9 +80,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
 
   const user = (await client.auth.getUser()).data.user;
+  const { roles } = store.getState().auth;
 
   // Authenticate route, must be logged in to create a blog
-  if (!user) {
+  if (!user || roles.includes("Admin") === false) {
     // Display unauthorized error
     throw data(null, { status: 401, statusText: "Unauthorized" });
   }
