@@ -44,12 +44,17 @@ export function HydrateFallback() {
       <div className="space-y-4">
         {[1, 2, 3, 4, 5].map((_, index) => (
           <div key={index} className="border rounded-md p-4">
-            <div className="mb-4 space-y-2">
-              <Skeleton className="h-6 w-75" />
-              <Skeleton className="h-3 w-40" />
-            </div>
-            <div>
-              <Skeleton className="h-30 w-full" />
+            <div className="flex gap-4">
+              <Skeleton className="h-50 w-50" />
+              <div className="flex-1">
+                <div className="mb-4 space-y-2">
+                  <Skeleton className="h-6 w-75" />
+                  <Skeleton className="h-3 w-40" />
+                </div>
+                <div>
+                  <Skeleton className="h-30 w-full" />
+                </div>
+              </div>
             </div>
           </div>
         ))}
@@ -78,25 +83,32 @@ export default function Blogs({ loaderData }: Route.ComponentProps) {
         {blogs &&
           blogs.map((blog, index) => (
             <div key={index} className="border rounded-md p-4">
-              <div className="mb-4">
-                <h1 className="font-bold text-2xl">{blog.title}</h1>
-                <span className="flex items-start gap-2">
-                  <p className="text-muted-foreground text-xs">
-                    {dayjs(blog.created_at).format("MMMM DD, YYYY H:M:s")}
-                  </p>
-                  <p className="text-muted-foreground text-xs font-medium">
-                    by {blog.author}
-                  </p>
-                </span>
-              </div>
-              <div>
-                <p className="text-sm">{blog.short_description}...</p>
-                <Link
-                  to={`/blogs/view/${blog.id}`}
-                  className="underline text-sm"
-                >
-                  Read More
-                </Link>
+              <div className="flex gap-4">
+                {blog.image_url && (
+                  <img src={blog.image_url} className="max-h-50" />
+                )}
+                <div className="flex-1">
+                  <div className="mb-4">
+                    <h1 className="font-bold text-2xl">{blog.title}</h1>
+                    <span className="flex items-start gap-2">
+                      <p className="text-muted-foreground text-xs">
+                        {dayjs(blog.created_at).format("MMMM DD, YYYY H:MM:s")}
+                      </p>
+                      <p className="text-muted-foreground text-xs font-medium">
+                        by {blog.author}
+                      </p>
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm">{blog.short_description}...</p>
+                    <Link
+                      to={`/blogs/view/${blog.id}`}
+                      className="underline text-sm"
+                    >
+                      Read More
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
