@@ -7,13 +7,15 @@ import { getSupabaseServerClient } from "~/lib/supabase";
 
 interface AuthState {
   isAuthenticated: boolean;
-  username: string;
+  username: string | undefined;
+  user_id: string | undefined;
   roles: string[];
 }
 
 const initialState: AuthState = {
   isAuthenticated: false,
-  username: "",
+  username: undefined,
+  user_id: undefined,
   roles: [],
 };
 
@@ -37,10 +39,15 @@ export const authSlice = createSlice({
     },
     setUserInfo: (
       state,
-      action: PayloadAction<{ username: string; roles: string[] }>,
+      action: PayloadAction<{
+        username: string;
+        roles: string[];
+        user_id: string;
+      }>,
     ) => {
       state.username = action.payload.username;
       state.roles = action.payload.roles;
+      state.user_id = action.payload.user_id;
     },
   },
   extraReducers: (builder) => {

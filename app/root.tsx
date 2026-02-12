@@ -80,6 +80,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       isAuthenticated: user !== null,
       profile: profile,
       roles: roles,
+      user_id: user?.id,
       flash: {
         error: session.get("error"),
         message: session.get("message"),
@@ -94,7 +95,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
-  const { isAuthenticated, roles, flash, profile } = loaderData;
+  const { isAuthenticated, roles, flash, profile, user_id } = loaderData;
 
   // Set authenticated
   store.dispatch(setAuthenticated(isAuthenticated));
@@ -102,6 +103,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
     setUserInfo({
       username: profile?.username ?? "unavailable",
       roles: roles?.map((role) => role.roles.role_name) ?? [],
+      user_id: user_id ?? "unavailable",
     }),
   );
 
