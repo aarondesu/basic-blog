@@ -16,7 +16,7 @@ import { toast, Toaster } from "sonner";
 import { Provider, useDispatch } from "react-redux";
 import { store } from "./redux/store";
 import { getSupabaseServerClient } from "./lib/supabase";
-import { setAuthenticated } from "./redux/reducers/auth";
+import { setAuthenticated, setUserInfo } from "./redux/reducers/auth";
 import { commitSession, getSession } from "./server.session";
 import { useEffect } from "react";
 
@@ -58,10 +58,28 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Handle user authentication
   const client = getSupabaseServerClient(request);
   const user = (await client.auth.getUser()).data.user;
+  const profile = user
+    ? (
+        await client
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user?.id ?? "")
+      ).data?.at(0)
+    : undefined;
+  const roles = user
+    ? (
+        await client
+          .from("user_roles")
+          .select("roles(role_name)")
+          .eq("user_id", String(user?.id))
+      ).data
+    : undefined;
 
   return data(
     {
       isAuthenticated: user !== null,
+      profile: profile,
+      roles: roles,
       flash: {
         error: session.get("error"),
         message: session.get("message"),
@@ -76,11 +94,19 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+  const { isAuthenticated, roles, flash, profile } = loaderData;
+
   // Set authenticated
-  store.dispatch(setAuthenticated(loaderData.isAuthenticated));
+  store.dispatch(setAuthenticated(isAuthenticated));
+  store.dispatch(
+    setUserInfo({
+      username: profile?.username ?? "unavailable",
+      roles: roles?.map((role) => role.roles.role_name) ?? [],
+    }),
+  );
 
   // Handle flash messages
-  const { error, message } = loaderData.flash;
+  const { error, message } = flash;
   useEffect(() => {
     if (error) {
       // Display error message, display error code if supplied
