@@ -115,6 +115,8 @@ export default function CreateBlog({
   const { user } = loaderData;
 
   const navigation = useNavigation();
+  const isLoading = navigation.state !== "idle";
+
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
@@ -231,7 +233,7 @@ export default function CreateBlog({
                   onValueChange={setFiles}
                   onUpload={onUpload}
                   className=""
-                  disabled={navigation.state === "loading" || isUploading}
+                  disabled={isLoading || isUploading}
                 >
                   {files.length === 0 && (
                     <FileUploadDropzone>
@@ -289,7 +291,7 @@ export default function CreateBlog({
                 <Textarea
                   {...field}
                   className="h-87.5"
-                  disabled={navigation.state === "loading" || isUploading}
+                  disabled={isLoading || isUploading}
                 />
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}
               </Field>
@@ -300,18 +302,16 @@ export default function CreateBlog({
               type="reset"
               variant="outline"
               className="w-full md:w-fit"
-              disabled={navigation.state === "loading" || isUploading}
+              disabled={isLoading || isUploading}
             >
               Reset
             </Button>
             <Button
               type="submit"
-              disabled={navigation.state === "loading" || isUploading}
+              disabled={isLoading || isUploading}
               className="w-full md:w-fit"
             >
-              {navigation.state === "loading" && (
-                <Loader2Icon className="animate-spin" />
-              )}
+              {isLoading && <Loader2Icon className="animate-spin" />}
               Create
             </Button>
           </div>

@@ -1,6 +1,5 @@
 import type { Route } from "./+types/_auth.login";
 
-import { useEffect } from "react";
 import { Loader2Icon } from "lucide-react";
 import {
   Link,
@@ -12,7 +11,6 @@ import {
 } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 
 import { type LoginData } from "~/types";
 import {
@@ -32,12 +30,7 @@ import {
 } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import {
-  getSupabaseBrowserClient,
-  getSupabaseServerClient,
-} from "~/lib/supabase";
-import { store } from "~/redux/store";
-import { setAuthenticated } from "~/redux/reducers/auth";
+import { getSupabaseServerClient } from "~/lib/supabase";
 import { useDispatch } from "react-redux";
 import { commitSession, getSession } from "~/server.session";
 
@@ -91,13 +84,6 @@ export async function loader({ request }: Route.LoaderArgs) {
       },
     });
   }
-
-  // // Check if authenticated
-  // const { isAuthenticated } = store.getState().auth;
-  // // if authenticated, redirect to home page
-  // if (isAuthenticated) {
-  //   throw redirect("/");
-  // }
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -113,8 +99,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Login({ actionData }: Route.ComponentProps) {
   // Get navigation
   const navigation = useNavigation();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const isLoading = navigation.state !== "idle";
 
   // Create RHF object with Zod validation
   const form = useForm<LoginData>({
@@ -161,6 +146,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
                     type="email"
                     aria-invalid={fieldState.invalid}
                     placeholder="Email Address"
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -179,6 +165,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
                     type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="Password"
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -194,7 +181,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
           type="submit"
           className="w-full"
           form="login-form"
-          disabled={navigation.state === "submitting"}
+          disabled={isLoading}
         >
           {navigation.state === "submitting" && (
             <Loader2Icon className="animate-spin" />

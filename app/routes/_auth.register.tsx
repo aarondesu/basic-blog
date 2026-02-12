@@ -101,7 +101,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Register({ actionData }: Route.ComponentProps) {
   const navigation = useNavigation();
-  const navigate = useNavigate();
+  const isLoading = navigation.state !== "idle";
 
   const form = useForm<ReigsterData>({
     resolver: zodResolver(registerUserSchema),
@@ -163,6 +163,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
                     {...field}
                     type="email"
                     aria-invalid={fieldState.invalid}
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -180,6 +181,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
                     {...field}
                     type="password"
                     aria-invalid={fieldState.invalid}
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -197,6 +199,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
                     {...field}
                     type="password"
                     aria-invalid={fieldState.invalid}
+                    disabled={isLoading}
                   />
                   {fieldState.error && (
                     <FieldError errors={[fieldState.error]} />
@@ -212,7 +215,7 @@ export default function Register({ actionData }: Route.ComponentProps) {
           type="submit"
           className="w-full"
           form="register-form"
-          disabled={navigation.state === "submitting"}
+          disabled={isLoading}
         >
           {navigation.state === "submitting" && (
             <Loader2Icon className="animate-spin" />
