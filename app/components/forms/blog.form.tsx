@@ -30,7 +30,15 @@ import type z from "zod";
 
 type Args = {
   mode: "create" | "edit";
-  data?: BlogData;
+  data?: {
+    body: string;
+    created_at: string;
+    id: number;
+    image_url: string | null;
+    title: string;
+    udpated_at: string;
+    user_id: string;
+  };
   error?: PostgrestError;
 };
 
@@ -45,25 +53,27 @@ export default function BlogForm({ mode, data, error }: Args) {
   const form = useForm<z.infer<typeof blogSchema>>({
     resolver: zodResolver(blogSchema),
     defaultValues: {
-      title: "",
-      body: "",
+      title: data?.title ?? "",
+      body: data?.body ?? "",
+      image_url: data?.image_url ?? undefined,
     },
   });
 
   // Handle Submiting of form to action
   const submit = useSubmit();
   const onSubmit = useCallback(
-    form.handleSubmit((data) => {
+    form.handleSubmit((inputData) => {
       const formData = new FormData();
-      Object.entries(data).forEach(([Key, value]) => {
+      Object.entries(inputData).forEach(([Key, value]) => {
         formData.append(Key, value);
       });
 
       formData.append("user_id", user_id ?? "undefined");
+      if (mode === "edit" && data) formData.append("id", String(data.id));
 
       submit(formData, {
-        action: mode === "create" ? "/blogs/create" : "/blogs/edit",
-        method: "POST",
+        action: mode === "create" ? "/blogs/create" : `/blogs/edit/${data?.id}`,
+        method: mode === "create" ? "POST" : "PUT",
       });
     }),
     [form],
@@ -224,7 +234,7 @@ export default function BlogForm({ mode, data, error }: Args) {
               </Field>
             )}
           />
-          <div className="flex flex-col md:flex-row justify-end gap-2">
+          <div className="flex flex-col-reverse md:flex-row justify-end gap-2">
             <Button
               type="reset"
               variant="outline"
@@ -239,7 +249,7 @@ export default function BlogForm({ mode, data, error }: Args) {
               className="w-full md:w-fit"
             >
               {isLoading && <Loader2Icon className="animate-spin" />}
-              Create
+              {mode === "create" ? "Create" : "Update"}
             </Button>
           </div>
         </FieldGroup>
