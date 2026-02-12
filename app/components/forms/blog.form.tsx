@@ -123,7 +123,12 @@ export default function BlogForm({ mode, data, error }: Args) {
           onSuccess(file);
         });
 
-        await Promise.all(uploadPromises);
+        // await Promise.all(uploadPromises);
+        toast.promise(Promise.all(uploadPromises), {
+          loading: "Uploading image...",
+          success: "Successfully uploaded image!",
+          error: "Failed to upload image",
+        });
         setIsUploading((state) => (state = false));
       } catch (error) {
         console.error("Unexpected error during upload:", error);

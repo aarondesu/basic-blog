@@ -66,6 +66,7 @@ export default function Navigation() {
                   <Link
                     to={link.url}
                     prefetch={link.prefetch ? "intent" : "none"}
+                    reloadDocument
                   >
                     {link.label}
                   </Link>
