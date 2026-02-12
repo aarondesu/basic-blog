@@ -8,7 +8,7 @@ import {
 } from "./ui/navigation-menu";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Button } from "./ui/button";
-import { ChevronDown, MenuIcon } from "lucide-react";
+import { ChevronDown, MenuIcon, PlusIcon } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { useAppSelector } from "~/redux/hooks";
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -40,6 +40,8 @@ const links: MenuLink[] = [
 ];
 
 export default function Navigation() {
+  const { roles } = useAppSelector((state) => state.auth);
+
   const isMobile = useIsMobile();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
@@ -71,13 +73,22 @@ export default function Navigation() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
             ))}
+            {roles.includes("Admin") && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link to="/blogs/create">
+                    <PlusIcon />
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
         {isAuthenticated ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
-                <Avatar size="sm">
+                <Avatar size="sm" className="bg-muted-foreground">
                   <AvatarImage src={avatarDefault} alt="user" />
                   <AvatarFallback>U</AvatarFallback>
                   <AvatarBadge>
