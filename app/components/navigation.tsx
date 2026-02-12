@@ -35,7 +35,6 @@ const links: MenuLink[] = [
   {
     label: "Blogs",
     url: "/blogs",
-    prefetch: true,
   },
 ];
 
