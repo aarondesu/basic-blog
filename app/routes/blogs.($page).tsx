@@ -80,9 +80,14 @@ export default function Blogs({ loaderData }: Route.ComponentProps) {
             <div key={index} className="border rounded-md p-4">
               <div className="mb-4">
                 <h1 className="font-bold text-2xl">{blog.title}</h1>
-                <p className="text-muted-foreground text-xs">
-                  {dayjs(blog.created_at).format("MMMM DD, YYYY H:M:s")}
-                </p>
+                <span className="flex items-start gap-2">
+                  <p className="text-muted-foreground text-xs">
+                    {dayjs(blog.created_at).format("MMMM DD, YYYY H:M:s")}
+                  </p>
+                  <p className="text-muted-foreground text-xs font-medium">
+                    by {blog.author}
+                  </p>
+                </span>
               </div>
               <div>
                 <p className="text-sm">{blog.short_description}...</p>
@@ -90,7 +95,7 @@ export default function Blogs({ loaderData }: Route.ComponentProps) {
                   to={`/blogs/view/${blog.id}`}
                   className="underline text-sm"
                 >
-                  View More
+                  Read More
                 </Link>
               </div>
             </div>
