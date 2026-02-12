@@ -76,12 +76,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const client = getSupabaseServerClient(request);
 
-  // const user = (await client.auth.getUser()).data.user;
   const { isAuthenticated, user_id } = store.getState().auth;
   const { roles } = store.getState().auth;
 
   // Authenticate route, must be logged in to create a blog
-  if (!isAuthenticated || roles.includes("Admin") === false) {
+  if (!isAuthenticated || !roles.includes("Admin")) {
     // Display unauthorized error
     throw data(null, { status: 401, statusText: "Unauthorized" });
   }
@@ -119,124 +118,6 @@ export default function CreateBlog({
       </div>
       {actionData?.error && <div>{actionData.error.message}</div>}
 
-      {/* <form onSubmit={onSubmit}>
-        <FieldGroup className="">
-          <Controller
-            name="title"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Title</FieldLabel>
-                <Input
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Enter Title..."
-                  className="max-w-93.75"
-                  disabled={navigation.state === "loading" || isUploading}
-                />
-                {fieldState.error && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-          <Controller
-            name="image_url"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Image</FieldLabel>
-                <FileUpload
-                  accept="image/*"
-                  maxFiles={1}
-                  maxSize={5 * 2048 * 2048}
-                  onFileReject={onFileReject}
-                  value={files}
-                  onValueChange={setFiles}
-                  onUpload={onUpload}
-                  className=""
-                  disabled={isLoading || isUploading}
-                >
-                  {files.length === 0 && (
-                    <FileUploadDropzone>
-                      <div className="flex flex-col items-center gap-1 text-center">
-                        <div className="flex items-center justify-center rounded-full border p-2.5">
-                          <UploadIcon className="size-6 text-muted-foreground" />
-                        </div>
-                        <p className="font-medium text-sm">
-                          Drag & drop file here
-                        </p>
-                        <p className="text-muted-foreground text-xs">
-                          Or click to browse (max 1 file)
-                        </p>
-                      </div>
-                      <FileUploadTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mt-2 w-fit"
-                        >
-                          Browse files
-                        </Button>
-                      </FileUploadTrigger>
-                    </FileUploadDropzone>
-                  )}
-                  <FileUploadList>
-                    {files.map((file, index) => (
-                      <FileUploadItem key={index} value={file}>
-                        <FileUploadItemPreview />
-                        <FileUploadItemMetadata />
-                        <FileUploadItemProgress />
-                        <FileUploadItemDelete asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7"
-                          >
-                            <XIcon />
-                          </Button>
-                        </FileUploadItemDelete>
-                      </FileUploadItem>
-                    ))}
-                  </FileUploadList>
-                </FileUpload>
-                {fieldState.error && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-          <Controller
-            name="body"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid} className="col-span-2">
-                <FieldLabel>Body</FieldLabel>
-                <Textarea
-                  {...field}
-                  className="h-87.5"
-                  disabled={isLoading || isUploading}
-                />
-                {fieldState.error && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-          <div className="flex flex-col md:flex-row justify-end gap-2">
-            <Button
-              type="reset"
-              variant="outline"
-              className="w-full md:w-fit"
-              disabled={isLoading || isUploading}
-            >
-              Reset
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || isUploading}
-              className="w-full md:w-fit"
-            >
-              {isLoading && <Loader2Icon className="animate-spin" />}
-              Create
-            </Button>
-          </div>
-        </FieldGroup>
-      </form> */}
       <BlogForm mode="create" error={actionData?.error} />
     </div>
   );

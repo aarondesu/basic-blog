@@ -23,7 +23,8 @@ export async function clientLoader({
   const result = await client
     .from("blogs_view")
     .select("*", { count: "exact" })
-    .range((page - 1) * per_page, page * per_page - 1);
+    .range((page - 1) * per_page, page * per_page - 1)
+    .order("created_at", { ascending: false });
 
   // Throw error if past bounds
   if (result.data === null) {
@@ -39,13 +40,13 @@ export async function clientLoader({
 
 export function HydrateFallback() {
   return (
-    <div className="container mx-auto mt-4 space-y-4">
+    <div className="container mx-auto mt-4 space-y-4 px-4 md:px-0">
       <h2 className="text-4xl font-extrabold">Blogs</h2>
       <div className="space-y-4">
         {[1, 2, 3, 4, 5].map((_, index) => (
           <div key={index} className="border rounded-md p-4">
-            <div className="flex gap-4">
-              <Skeleton className="h-50 w-50" />
+            <div className="flex flex-col md:flex-row gap-4">
+              <Skeleton className="h-50 w-full sm:w-50" />
               <div className="flex-1">
                 <div className="mb-4 space-y-2">
                   <Skeleton className="h-6 w-75" />
@@ -77,14 +78,14 @@ export default function Blogs({ loaderData }: Route.ComponentProps) {
   const { blogs, current_page, last_page } = loaderData;
 
   return (
-    <div className="container mx-auto mt-4 space-y-4">
+    <div className="container mx-auto mt-4 space-y-4 px-4 md:px-0">
       <h2 className="text-4xl font-extrabold">Blogs</h2>
       <div className="space-y-4">
         {blogs &&
           blogs.map((blog, index) => (
             <div key={index} className="border rounded-md p-4">
-              <div className="flex gap-4">
-                {blog.image_url && (
+              <div className="flex flex-col md:flex-row gap-4">
+                {blog.image_url && blog.image_url !== "undefined" && (
                   <img src={blog.image_url} className="max-h-50" />
                 )}
                 <div className="flex-1">
@@ -104,6 +105,7 @@ export default function Blogs({ loaderData }: Route.ComponentProps) {
                     <Link
                       to={`/blogs/view/${blog.id}`}
                       className="underline text-sm"
+                      reloadDocument
                     >
                       Read More
                     </Link>
