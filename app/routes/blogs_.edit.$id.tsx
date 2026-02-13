@@ -2,9 +2,7 @@ import { getSupabaseServerClient } from "~/lib/supabase";
 import type { Route } from "./+types/blogs_.edit.$id";
 import { data, redirect } from "react-router";
 import BlogForm from "~/components/forms/blog.form";
-import { PostgrestError } from "@supabase/supabase-js";
 import { commitSession, getSession } from "~/server.session";
-import { store } from "~/redux/store";
 
 export async function action({ request }: Route.ActionArgs) {
   // Get needed variables

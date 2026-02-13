@@ -1,5 +1,3 @@
-"user client";
-
 import { Link } from "react-router";
 import {
   NavigationMenu,
@@ -31,12 +29,10 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,

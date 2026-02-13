@@ -1,4 +1,4 @@
-import { data, redirect } from "react-router";
+import { redirect } from "react-router";
 import type { Route } from "./+types/blogs_.delete";
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
@@ -39,7 +39,3 @@ export async function action({ request }: Route.ActionArgs) {
     },
   });
 }
-
-// export default function DeleteBlog() {
-//   return <div>Delete</div>;
-// }

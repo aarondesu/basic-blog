@@ -1,14 +1,7 @@
 import type { Route } from "./+types/_auth.login";
 
 import { Loader2Icon } from "lucide-react";
-import {
-  Link,
-  useNavigate,
-  useNavigation,
-  useSubmit,
-  redirect,
-  data,
-} from "react-router";
+import { Link, useNavigation, useSubmit, redirect, data } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -31,7 +24,6 @@ import {
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { getSupabaseServerClient } from "~/lib/supabase";
-import { useDispatch } from "react-redux";
 import { commitSession, getSession } from "~/server.session";
 
 export async function action({ request }: Route.ActionArgs) {

@@ -1,28 +1,25 @@
 import { useAppSelector } from "~/redux/hooks";
 import {
   FileUpload,
-  FileUploadDropzone,
   FileUploadItem,
   FileUploadItemDelete,
   FileUploadItemPreview,
   FileUploadItemProgress,
   FileUploadList,
   FileUploadTrigger,
-  type FileUploadProps,
 } from "./ui/file-upload";
 import { Controller, useForm } from "react-hook-form";
 import type { CommentInput } from "~/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { commentInputSchema } from "~/schemas";
-import { useNavigation, useSubmit, useFetcher } from "react-router";
+import { useFetcher } from "react-router";
 import { Textarea } from "./ui/textarea";
 import { Field } from "./ui/field";
 import { Button } from "./ui/button";
 import { PaperclipIcon, SendHorizonalIcon, XIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { getSupabaseBrowserClient } from "~/lib/supabase";
-import { randString } from "~/lib/utils";
+import { useUploadImage } from "~/lib/utils";
 
 type Args = {
   blog_id: number;
@@ -30,10 +27,8 @@ type Args = {
 
 export default function CommentInput({ blog_id }: Args) {
   const { user_id } = useAppSelector((state) => state.auth);
-  const [files, setFiles] = useState<File[]>([]);
   const fetcher = useFetcher();
 
-  const navigation = useNavigation();
   const isLoading = fetcher.state !== "idle";
 
   const form = useForm<CommentInput>({
@@ -44,87 +39,47 @@ export default function CommentInput({ blog_id }: Args) {
       blog_id: blog_id,
     },
   });
+
   const { body } = form.watch(); // Used for disabling submit button if comment body is missing
 
-  // Handle submitting of
-  const submit = useSubmit();
-  const onSubmit = form.handleSubmit((data) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, value as string);
-    });
+  // Handle uploading of images
+  const [files, setFiles] = useState<File[]>([]);
+  const { onUpload, isUploading, imageUrl } = useUploadImage();
 
-    // Submit to comment action route
-    // submit(formData, { action: "/comments/create", method: "POST" });
-    toast.promise(
-      fetcher.submit(formData, { action: "/comments/create", method: "POST" }),
-      {
-        loading: "Posting comment...",
-        success: () => {
-          form.resetField("body"); // Clear the text area after posting
-          form.resetField("image_url");
-          setFiles([]);
-          return "Successfully posted comment!";
+  // Handle submitting of form
+  const onSubmit = useCallback(
+    form.handleSubmit((data) => {
+      const formData = new FormData();
+      data.image_url = imageUrl;
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value as string);
+      });
+
+      // Submit to comment action route
+      // submit(formData, { action: "/comments/create", method: "POST" });
+      toast.promise(
+        fetcher.submit(formData, {
+          action: "/comments/create",
+          method: "POST",
+        }),
+        {
+          loading: "Posting comment...",
+          success: () => {
+            form.resetField("body"); // Clear the text area after posting
+            form.resetField("image_url");
+            setFiles([]);
+            return "Successfully posted comment!";
+          },
         },
-      },
-    );
-  });
+      );
+    }),
+    [form, imageUrl],
+  );
 
   // Handle file reject
   const onReject = useCallback((file: File, message: string) => {
     toast.message(message);
   }, []);
-
-  // Handle on upload of image
-  const client = getSupabaseBrowserClient();
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-
-  const onUpload: NonNullable<FileUploadProps["onUpload"]> = useCallback(
-    async (files, { onError, onProgress, onSuccess }) => {
-      try {
-        setIsUploading(true);
-
-        const uploadPromises = files.map(async (file) => {
-          if (!client) return;
-
-          const bucketResult = await client.storage
-            .from("images")
-            .upload(`${randString()}-${randString()}`, file, {
-              cacheControl: "3600",
-              upsert: false,
-            });
-
-          if (bucketResult.error) {
-            onError(file, {
-              name: bucketResult.error.name,
-              message: bucketResult.error.message,
-            });
-          }
-
-          const { data } = await client.storage
-            .from("images")
-            .getPublicUrl(bucketResult.data?.path ?? "");
-
-          // Set image_url
-          form.setValue("image_url", data.publicUrl);
-
-          onSuccess(file);
-        });
-
-        toast.promise(Promise.all(uploadPromises), {
-          loading: "Uploading image...",
-          success: () => {
-            setIsUploading((state) => (state = false));
-            return "Successfully uploaded image!";
-          },
-          error: "Failed to upload image",
-        });
-      } catch (error) {
-        console.error("Unexpected error during upload:", error);
-      }
-    },
-    [],
-  );
 
   return (
     <FileUpload

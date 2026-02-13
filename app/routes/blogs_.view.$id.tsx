@@ -49,9 +49,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   return data({
     blog: blog.data,
-    comments: comments.data,
-    comments_last_page: Math.ceil((comments.count ?? 1) / per_page),
-    comments_current_page: current_page,
+    comments: {
+      data: comments.data,
+      last_Page: Math.ceil((comments.count ?? 1) / per_page),
+      current_page: current_page,
+      count: comments.count,
+    },
   });
 }
 
@@ -68,8 +71,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function ViewBlog({ loaderData }: Route.ComponentProps) {
-  const { blog, comments, comments_last_page, comments_current_page } =
-    loaderData;
+  const { blog, comments } = loaderData;
   const {
     roles,
     user_id: auth_user_id,
@@ -99,10 +101,6 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                     title={blog?.title ?? ""}
                   >
                     <Button type="button" variant="outline" size="sm">
-                      {/* <Link to={`/blogs/delete/${blog?.id}`}>
-                      <TrashIcon />
-                      Delete
-                    </Link> */}
                       <TrashIcon />
                       Delete
                     </Button>
@@ -119,15 +117,12 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
               </p>
             </span>
           </div>
-          {/* {blog?.image_url && blog.image_url !== "undefined" && (
-            <img src={blog.image_url} className="max-w-3xl" />
-          )} */}
           <div>
             <p className="whitespace-pre-wrap">{blog?.body}</p>
           </div>
         </div>
         <div className="border-t pt-3 space-y-4">
-          <h4 className="font-bold text-xl">Comments ({comments?.length})</h4>
+          <h4 className="font-bold text-xl">Comments ({comments.count})</h4>
           {isAuthenticated ? (
             <CommentInput blog_id={blog?.id ?? 0} />
           ) : (
@@ -139,18 +134,18 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
             </div>
           )}
           <div className="flex flex-col">
-            {comments &&
-              comments.map((comment, index) => (
+            {comments.data &&
+              comments.data.map((comment, index) => (
                 <Comment key={comment.id} {...comment} />
               ))}
           </div>
           <Pagination>
             <PaginationContent>
-              {[...new Array(comments_last_page)].map((_, index) => (
+              {[...new Array(comments.last_Page)].map((_, index) => (
                 <PaginationItem key={index}>
                   <PaginationLink
                     href={`?page=${index + 1}`}
-                    isActive={comments_current_page - 1 === index}
+                    isActive={comments.current_page - 1 === index}
                   >
                     {index + 1}
                   </PaginationLink>

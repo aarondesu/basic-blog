@@ -1,9 +1,8 @@
 import type { PostgrestError } from "@supabase/supabase-js";
 import { useCallback, useState } from "react";
-import { Controller, useForm, useFormContext } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigation, useSubmit } from "react-router";
 import { useAppSelector } from "~/redux/hooks";
-import type { BlogData } from "~/types";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -17,13 +16,11 @@ import {
   FileUploadItemProgress,
   FileUploadList,
   FileUploadTrigger,
-  type FileUploadProps,
 } from "../ui/file-upload";
 import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import { getSupabaseBrowserClient } from "~/lib/supabase";
 import { toast } from "sonner";
-import { randString } from "~/lib/utils";
+import { useUploadImage } from "~/lib/utils";
 import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
@@ -60,11 +57,24 @@ export default function BlogForm({ mode, data, error }: Args) {
     },
   });
 
+  const isLoading = navigation.state !== "idle";
+
+  // Handle uploading of image
+  const { imageUrl, isUploading, onUpload } = useUploadImage();
+  const [files, setFiles] = useState<File[]>([]);
+
+  const onFileReject = useCallback((file: File, message: string) => {
+    toast.error(message, {
+      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+    });
+  }, []);
+
   // Handle Submiting of form to action
   const submit = useSubmit();
   const onSubmit = useCallback(
     form.handleSubmit((inputData) => {
       const formData = new FormData();
+      inputData.image_url = imageUrl;
       Object.entries(inputData).forEach(([Key, value]) => {
         formData.append(Key, value);
       });
@@ -76,66 +86,7 @@ export default function BlogForm({ mode, data, error }: Args) {
         method: mode === "create" ? "POST" : "PUT",
       });
     }),
-    [form],
-  );
-
-  // Handle uploading of image
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-  const isLoading = navigation.state !== "idle";
-  const [files, setFiles] = useState<File[]>([]);
-  const client = getSupabaseBrowserClient();
-
-  const onFileReject = useCallback((file: File, message: string) => {
-    toast.error(message, {
-      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
-    });
-  }, []);
-
-  const onUpload: NonNullable<FileUploadProps["onUpload"]> = useCallback(
-    async (files, { onError, onProgress, onSuccess }) => {
-      try {
-        setIsUploading(true);
-
-        const uploadPromises = files.map(async (file) => {
-          if (!client) return;
-
-          const bucketResult = await client.storage
-            .from("images")
-            .upload(`${randString()}-${randString()}`, file, {
-              cacheControl: "3600",
-              upsert: false,
-            });
-
-          if (bucketResult.error) {
-            onError(file, {
-              name: bucketResult.error.name,
-              message: bucketResult.error.message,
-            });
-          }
-
-          const { data } = await client.storage
-            .from("images")
-            .getPublicUrl(bucketResult.data?.path ?? "");
-
-          // Set image_url
-          form.setValue("image_url", data.publicUrl);
-
-          onSuccess(file);
-        });
-
-        toast.promise(Promise.all(uploadPromises), {
-          loading: "Uploading image...",
-          success: () => {
-            setIsUploading((state) => (state = false));
-            return "Successfully uploaded image!";
-          },
-          error: "Failed to upload image",
-        });
-      } catch (error) {
-        console.error("Unexpected error during upload:", error);
-      }
-    },
-    [],
+    [form, imageUrl],
   );
 
   return (
