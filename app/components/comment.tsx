@@ -49,7 +49,9 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
           </div>
         )} */}
       </div>
-      {comment.image_url && <img src={comment.image_url} />}
+      {comment.image_url && (
+        <img src={comment.image_url} className="max-w-xl" />
+      )}
       <div className="bg-accent rounded-md p-4">
         <p className="text-sm">{comment.body}</p>
       </div>

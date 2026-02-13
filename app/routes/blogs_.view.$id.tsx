@@ -103,7 +103,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
           </span>
         </div>
         {blog?.image_url && blog.image_url !== "undefined" && (
-          <img src={blog.image_url} />
+          <img src={blog.image_url} className="max-w-3xl" />
         )}
         <div>
           <p className="whitespace-pre-wrap">{blog?.body}</p>
