@@ -1,13 +1,10 @@
 import type { Route } from "./+types/blogs_.create";
 
-import { data, redirect, type MiddlewareFunction } from "react-router";
+import { data, redirect } from "react-router";
 
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
-import { store } from "~/redux/store";
 import BlogForm from "~/components/forms/blog.form";
-import type { Middleware } from "@reduxjs/toolkit";
-import { useAppSelector } from "~/redux/hooks";
 
 // Temp
 
