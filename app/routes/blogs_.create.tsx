@@ -1,11 +1,13 @@
 import type { Route } from "./+types/blogs_.create";
 
-import { data, redirect } from "react-router";
+import { data, redirect, type MiddlewareFunction } from "react-router";
 
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
 import { store } from "~/redux/store";
 import BlogForm from "~/components/forms/blog.form";
+import type { Middleware } from "@reduxjs/toolkit";
+import { useAppSelector } from "~/redux/hooks";
 
 // Temp
 
@@ -43,26 +45,24 @@ export async function action({ request }: Route.ActionArgs) {
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
 
-  const { isAuthenticated, user_id } = store.getState().auth;
-  const { roles } = store.getState().auth;
-
-  // Authenticate route, must be logged in to create a blog
-  if (!isAuthenticated || !roles.includes("Admin")) {
-    // Display unauthorized error
+  // Throw unauthorized error if user is null
+  if (!user) {
     throw data(null, { status: 401, statusText: "Unauthorized" });
   }
 
-  return data(
-    {
-      user_id: user_id,
-    },
-    {
-      headers: {
-        "Set-Cookie": await commitSession(session),
-      },
-    },
-  );
+  // Get roles
+  const roles = (
+    await client
+      .from("user_roles")
+      .select("role:roles(role_name)")
+      .eq("user_id", user.id)
+  ).data;
+
+  if (!roles?.find((role) => role.role.role_name === "Admin")) {
+    throw data(null, { status: 401, statusText: "Unauthorized" });
+  }
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -75,10 +75,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function CreateBlog({
-  loaderData,
-  actionData,
-}: Route.ComponentProps) {
+export default function CreateBlog({ actionData }: Route.ComponentProps) {
   return (
     <div className="container mx-auto px-4 md:px-0">
       <div>
