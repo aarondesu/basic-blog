@@ -10,6 +10,12 @@ import ConfirmDeleteBlogDialog from "~/components/confirm-delete-blog-dialog";
 import CommentInput from "~/components/comment-input";
 
 import Comment from "~/components/comment";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+} from "~/components/ui/pagination";
 
 export function HydrateFallback({}: Route.HydrateFallbackProps) {
   return <div className="container mx-auto">Test</div>;
@@ -18,7 +24,7 @@ export function HydrateFallback({}: Route.HydrateFallbackProps) {
 export async function loader({ request, params }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
 
-  const result = await client
+  const blog = await client
     .from("view_blog_with_username")
     .select(
       "*, comments!blog_id(id, user_id, body, image_url, created_at, user:profiles!user_id(username))",
@@ -27,12 +33,27 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     .single();
 
   // Check if no blog is found
-  if (!result.data) {
+  if (!blog.data) {
     throw data(null, { status: 404 });
   }
 
+  // Get comments
+  const current_page = Number(
+    new URL(request.url).searchParams.get("page") ?? 1,
+  );
+  const per_page = 10; // Temp, will change later
+  const comments = await client
+    .from("comments")
+    .select("*, user:profiles!user_id(username)", { count: "exact" })
+    .eq("blog_id", Number(blog.data.id))
+    .range((current_page - 1) * per_page, current_page * per_page - 1)
+    .order("created_at", { ascending: false });
+
   return data({
-    blog: result.data,
+    blog: blog.data,
+    comments: comments.data,
+    comments_last_page: Math.ceil((comments.count ?? 1) / per_page),
+    comments_current_page: current_page,
   });
 }
 
@@ -49,7 +70,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function ViewBlog({ loaderData }: Route.ComponentProps) {
-  const { blog } = loaderData;
+  const { blog, comments, comments_last_page, comments_current_page } =
+    loaderData;
   const {
     roles,
     user_id: auth_user_id,
@@ -123,11 +145,25 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
             </div>
           )}
           <div className="flex flex-col">
-            {blog?.comments &&
-              blog.comments.map((comment, index) => (
+            {comments &&
+              comments.map((comment, index) => (
                 <Comment key={comment.id} {...comment} />
               ))}
           </div>
+          <Pagination>
+            <PaginationContent>
+              {[...new Array(comments_last_page)].map((_, index) => (
+                <PaginationItem key={index}>
+                  <PaginationLink
+                    href={`?page=${index + 1}`}
+                    isActive={comments_current_page - 1 === index}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </div>

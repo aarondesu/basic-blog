@@ -15,7 +15,7 @@ export async function clientLoader({
   params,
 }: Route.ClientLoaderArgs) {
   // Get the page params
-  const page = Number(params.page ?? 1);
+  const current_page = Number(params.page ?? 1);
   const per_page = 5; // Temp, will change later
 
   // Load the data
@@ -23,7 +23,7 @@ export async function clientLoader({
   const result = await client
     .from("blogs_view")
     .select("*", { count: "exact" })
-    .range((page - 1) * per_page, page * per_page - 1)
+    .range((current_page - 1) * per_page, current_page * per_page - 1)
     .order("created_at", { ascending: false });
 
   // Throw error if past bounds
@@ -32,7 +32,7 @@ export async function clientLoader({
   }
 
   return data({
-    current_page: page,
+    current_page: current_page,
     last_page: Math.ceil((result.count ?? 1) / per_page),
     blogs: result.data,
   });
