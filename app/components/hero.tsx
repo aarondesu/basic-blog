@@ -23,7 +23,9 @@ export default function Hero({ title, description }: Args) {
           <p className="text-center">{description}</p>
         </div>
         <Button variant="outline" asChild>
-          <Link to="/blogs">View Blogs</Link>
+          <Link to="/blogs" reloadDocument>
+            View Blogs
+          </Link>
         </Button>
       </div>
     </div>

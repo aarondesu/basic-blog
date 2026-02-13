@@ -119,7 +119,9 @@ export default function Navigation() {
                     <SidebarGroupContent>
                       <SidebarMenuItem>
                         <SidebarMenuButton asChild>
-                          <Link to="/blogs/create">Create New Blog</Link>
+                          <Link to="/blogs/create" reloadDocument>
+                            Create New Blog
+                          </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     </SidebarGroupContent>

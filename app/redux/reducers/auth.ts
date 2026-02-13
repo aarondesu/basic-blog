@@ -42,10 +42,10 @@ export const authSlice = createSlice({
     setUserInfo: (
       state,
       action: PayloadAction<{
-        username: string;
+        username: string | undefined;
         roles: string[];
-        user_id: string;
-        email: string;
+        user_id: string | undefined;
+        email: string | undefined;
       }>,
     ) => {
       state.username = action.payload.username;
