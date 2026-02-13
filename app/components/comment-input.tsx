@@ -47,34 +47,33 @@ export default function CommentInput({ blog_id }: Args) {
   const { onUpload, isUploading, imageUrl } = useUploadImage();
 
   // Handle submitting of form
-  const onSubmit = useCallback(
-    form.handleSubmit((data) => {
-      const formData = new FormData();
-      data.image_url = imageUrl;
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value as string);
-      });
+  const onSubmit = form.handleSubmit((data) => {
+    const formData = new FormData();
+    data.image_url = imageUrl;
 
-      // Submit to comment action route
-      // submit(formData, { action: "/comments/create", method: "POST" });
-      toast.promise(
-        fetcher.submit(formData, {
-          action: "/comments/create",
-          method: "POST",
-        }),
-        {
-          loading: "Posting comment...",
-          success: () => {
-            form.resetField("body"); // Clear the text area after posting
-            form.resetField("image_url");
-            setFiles([]);
-            return "Successfully posted comment!";
-          },
+    Object.entries(data).forEach(([key, value]) => {
+      if (!value) return;
+      formData.append(key, value as string);
+    });
+
+    // Submit to comment action route
+    // submit(formData, { action: "/comments/create", method: "POST" });
+    toast.promise(
+      fetcher.submit(formData, {
+        action: "/comments/create",
+        method: "POST",
+      }),
+      {
+        loading: "Posting comment...",
+        success: () => {
+          form.resetField("body"); // Clear the text area after posting
+          form.resetField("image_url");
+          setFiles([]);
+          return "Successfully posted comment!";
         },
-      );
-    }),
-    [form, imageUrl],
-  );
+      },
+    );
+  });
 
   // Handle file reject
   const onReject = useCallback((file: File, message: string) => {

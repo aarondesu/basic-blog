@@ -71,23 +71,22 @@ export default function BlogForm({ mode, data, error }: Args) {
 
   // Handle Submiting of form to action
   const submit = useSubmit();
-  const onSubmit = useCallback(
-    form.handleSubmit((inputData) => {
-      const formData = new FormData();
-      inputData.image_url = imageUrl;
-      Object.entries(inputData).forEach(([Key, value]) => {
-        formData.append(Key, value);
-      });
+  const onSubmit = form.handleSubmit((inputData) => {
+    const formData = new FormData();
+    inputData.image_url = imageUrl;
+    Object.entries(inputData).forEach(([Key, value]) => {
+      if (!value) return;
 
-      if (mode === "edit" && data) formData.append("id", String(data.id));
+      formData.append(Key, value);
+    });
 
-      submit(formData, {
-        action: mode === "create" ? "/blogs/create" : `/blogs/edit/${data?.id}`,
-        method: mode === "create" ? "POST" : "PUT",
-      });
-    }),
-    [form, imageUrl],
-  );
+    if (mode === "edit" && data) formData.append("id", String(data.id));
+
+    submit(formData, {
+      action: mode === "create" ? "/blogs/create" : `/blogs/edit/${data?.id}`,
+      method: mode === "create" ? "POST" : "PUT",
+    });
+  });
 
   return (
     <div className="">
