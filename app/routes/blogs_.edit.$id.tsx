@@ -44,6 +44,13 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   // Get blog data
   const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
+
+  // Check if a user is logged in
+  if (!user) {
+    throw data(null, { status: 401, statusText: "Unauthorized" });
+  }
+
   const result = await client
     .from("blogs")
     .select("*")
@@ -56,8 +63,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 
   // Check if logged in user is owner of blog
-  const { user_id } = store.getState().auth;
-  if (user_id !== result.data.user_id) {
+  if (user?.id !== result.data.user_id) {
     throw data(null, { status: 401, statusText: "Unauthorized" });
   }
 
