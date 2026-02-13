@@ -101,10 +101,6 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                     title={blog?.title ?? ""}
                   >
                     <Button type="button" variant="outline" size="sm">
-                      {/* <Link to={`/blogs/delete/${blog?.id}`}>
-                      <TrashIcon />
-                      Delete
-                    </Link> */}
                       <TrashIcon />
                       Delete
                     </Button>
@@ -121,9 +117,6 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
               </p>
             </span>
           </div>
-          {/* {blog?.image_url && blog.image_url !== "undefined" && (
-            <img src={blog.image_url} className="max-w-3xl" />
-          )} */}
           <div>
             <p className="whitespace-pre-wrap">{blog?.body}</p>
           </div>

@@ -2,17 +2,8 @@ import type { Route } from "./+types/_auth.register";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  data,
-  Link,
-  redirect,
-  useNavigate,
-  useNavigation,
-  useSubmit,
-} from "react-router";
-import { toast } from "sonner";
+import { data, Link, redirect, useNavigation, useSubmit } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -53,8 +44,6 @@ export async function action({ request }: Route.ActionArgs) {
       },
     },
   });
-
-  store.dispatch(setAuthenticated(true));
 
   if (result.error) {
     return data(
