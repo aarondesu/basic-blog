@@ -1,41 +1,9 @@
-import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
 import type { Route } from "./+types/blogs_.create";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { data, redirect, useNavigation, useSubmit } from "react-router";
-import z, { file } from "zod";
-import { Button } from "~/components/ui/button";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import {
-  getSupabaseBrowserClient,
-  getSupabaseServerClient,
-} from "~/lib/supabase";
-import { blogSchema } from "~/schemas";
+import { data, redirect } from "react-router";
+
+import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
-import {
-  FileUpload,
-  FileUploadClear,
-  FileUploadDropzone,
-  FileUploadItem,
-  FileUploadItemDelete,
-  FileUploadItemMetadata,
-  FileUploadItemPreview,
-  FileUploadItemProgress,
-  FileUploadList,
-  FileUploadTrigger,
-  type FileUploadProps,
-} from "~/components/ui/file-upload";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { randString } from "~/lib/utils";
 import { store } from "~/redux/store";
 import BlogForm from "~/components/forms/blog.form";
 
@@ -51,7 +19,7 @@ export async function action({ request }: Route.ActionArgs) {
   const { error } = await client.from("blogs").insert({
     user_id: formData.get("user_id") as string,
     title: formData.get("title") as string,
-    image_url: formData.get("image_url") as string,
+    image_url: (formData.get("image_url") as string) ?? undefined,
     body: formData.get("body") as string,
   });
 
@@ -116,7 +84,11 @@ export default function CreateBlog({
       <div>
         <h1 className="text-3xl font-bold mb-6">Create a Blog</h1>
       </div>
-      {actionData?.error && <div>{actionData.error.message}</div>}
+      {actionData?.error && (
+        <div className="border border-destructive bg-destructive/8 px-2 py-2 text-destructive text-sm mb-4">
+          {actionData.error.message}
+        </div>
+      )}
 
       <BlogForm mode="create" error={actionData?.error} />
     </div>

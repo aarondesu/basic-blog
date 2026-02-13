@@ -1,6 +1,9 @@
+"use client";
+
 import { Link } from "react-router";
 import Navigation from "./navigation";
 import SearchBar from "./search-bar";
+import {} from "~/database.types";
 
 export default function Header() {
   return (
@@ -14,7 +17,7 @@ export default function Header() {
             </Link>
           </span>
           {/* Search */}
-          <SearchBar />
+          {/* <SearchBar /> */}
         </div>
         <Navigation />
       </div>

@@ -56,6 +56,7 @@ export default function BlogForm({ mode, data, error }: Args) {
       title: data?.title ?? "",
       body: data?.body ?? "",
       image_url: data?.image_url ?? undefined,
+      user_id: user_id,
     },
   });
 
@@ -68,7 +69,6 @@ export default function BlogForm({ mode, data, error }: Args) {
         formData.append(Key, value);
       });
 
-      formData.append("user_id", user_id ?? "undefined");
       if (mode === "edit" && data) formData.append("id", String(data.id));
 
       submit(formData, {
@@ -123,13 +123,14 @@ export default function BlogForm({ mode, data, error }: Args) {
           onSuccess(file);
         });
 
-        // await Promise.all(uploadPromises);
         toast.promise(Promise.all(uploadPromises), {
           loading: "Uploading image...",
-          success: "Successfully uploaded image!",
+          success: () => {
+            setIsUploading((state) => (state = false));
+            return "Successfully uploaded image!";
+          },
           error: "Failed to upload image",
         });
-        setIsUploading((state) => (state = false));
       } catch (error) {
         console.error("Unexpected error during upload:", error);
       }
@@ -168,7 +169,7 @@ export default function BlogForm({ mode, data, error }: Args) {
                 <FileUpload
                   accept="image/*"
                   maxFiles={1}
-                  maxSize={5 * 2048 * 2048}
+                  maxSize={10 * 1024 * 1024}
                   onFileReject={onFileReject}
                   value={files}
                   onValueChange={setFiles}
