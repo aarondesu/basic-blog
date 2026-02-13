@@ -9,6 +9,9 @@ import {
   PaginationItem,
   PaginationLink,
 } from "~/components/ui/pagination";
+import { Button } from "~/components/ui/button";
+import { PlusIcon } from "lucide-react";
+import { useAppSelector } from "~/redux/hooks";
 
 export async function clientLoader({
   request,
@@ -76,10 +79,21 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Blogs({ loaderData }: Route.ComponentProps) {
   const { blogs, current_page, last_page } = loaderData;
+  const { roles } = useAppSelector((state) => state.auth);
 
   return (
     <div className="container mx-auto mt-4 space-y-4 px-4 md:px-0">
-      <h2 className="text-4xl font-extrabold">Blogs</h2>
+      <div className="flex justify-between">
+        <h2 className="text-4xl font-extrabold">Blogs</h2>
+        {roles.includes("Admin") && (
+          <Button type="button" variant="outline" asChild>
+            <Link to="/blogs/create">
+              <PlusIcon />
+              Create
+            </Link>
+          </Button>
+        )}
+      </div>
       <div className="space-y-4">
         {blogs && blogs.length === 0 && <h3>No blogs to display</h3>}
         {blogs &&
