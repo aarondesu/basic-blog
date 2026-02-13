@@ -55,9 +55,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export default function ViewBlog({ loaderData }: Route.ComponentProps) {
   const { blog } = loaderData;
-  const { roles, user_id: auth_user_id } = useAppSelector(
-    (state) => state.auth,
-  );
+  const {
+    roles,
+    user_id: auth_user_id,
+    isAuthenticated,
+  } = useAppSelector((state) => state.auth);
 
   return (
     <div className="container mx-auto space-y-6 my-4 px-4 md:px-0">
@@ -111,7 +113,16 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
         <h4 className="font-bold text-xl">
           Comments ({blog?.comments.length})
         </h4>
-        <CommentInput blog_id={blog?.id ?? 0} />
+        {isAuthenticated ? (
+          <CommentInput blog_id={blog?.id ?? 0} />
+        ) : (
+          <div className="border bg-muted rounded-md px-4 py-6">
+            <Link to="/login" className="underline">
+              Login
+            </Link>{" "}
+            to comment
+          </div>
+        )}
         <div className="flex flex-col">
           {blog?.comments &&
             blog.comments.map((comment, index) => (
