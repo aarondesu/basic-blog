@@ -1,11 +1,6 @@
-import { useCallback } from "react";
 import type { Route } from "./+types/_index";
 import Hero from "~/components/hero";
-import {
-  getSupabaseBrowserClient,
-  getSupabaseServerClient,
-} from "~/lib/supabase";
-import { Button } from "~/components/ui/button";
+import { getSupabaseServerClient } from "~/lib/supabase";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);

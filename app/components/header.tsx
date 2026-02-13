@@ -2,7 +2,6 @@
 
 import { Link } from "react-router";
 import Navigation from "./navigation";
-import SearchBar from "./search-bar";
 import {} from "~/database.types";
 
 export default function Header() {
@@ -16,8 +15,6 @@ export default function Header() {
               <p className="font-black select-none">myBlog</p>
             </Link>
           </span>
-          {/* Search */}
-          {/* <SearchBar /> */}
         </div>
         <Navigation />
       </div>

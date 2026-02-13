@@ -7,21 +7,19 @@ import {
   FileUploadItemProgress,
   FileUploadList,
   FileUploadTrigger,
-  type FileUploadProps,
 } from "./ui/file-upload";
 import { Controller, useForm } from "react-hook-form";
 import type { CommentInput } from "~/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { commentInputSchema } from "~/schemas";
-import { useNavigation, useFetcher } from "react-router";
+import { useFetcher } from "react-router";
 import { Textarea } from "./ui/textarea";
 import { Field } from "./ui/field";
 import { Button } from "./ui/button";
 import { PaperclipIcon, SendHorizonalIcon, XIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { getSupabaseBrowserClient } from "~/lib/supabase";
-import { randString, useUploadImage } from "~/lib/utils";
+import { useUploadImage } from "~/lib/utils";
 
 type Args = {
   blog_id: number;
