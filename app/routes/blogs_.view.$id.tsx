@@ -26,9 +26,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const blog = await client
     .from("view_blog_with_username")
-    .select(
-      "*, comments!blog_id(id, user_id, body, image_url, created_at, user:profiles!user_id(username))",
-    )
+    .select("*")
     .eq("id", Number(params.id))
     .single();
 
@@ -131,9 +129,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
         <div className="border-t pt-3 space-y-4">
-          <h4 className="font-bold text-xl">
-            Comments ({blog?.comments.length})
-          </h4>
+          <h4 className="font-bold text-xl">Comments ({comments?.length})</h4>
           {isAuthenticated ? (
             <CommentInput blog_id={blog?.id ?? 0} />
           ) : (
