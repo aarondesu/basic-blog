@@ -38,7 +38,7 @@ export default function ConfirmDeleteBlogDialog({ children, id, title }: Args) {
           <DialogTitle>Delete blog</DialogTitle>
         </DialogHeader>
         <form
-          onClick={(e) => {
+          onSubmit={(e) => {
             e.preventDefault();
             onSubmit();
           }}
@@ -50,7 +50,11 @@ export default function ConfirmDeleteBlogDialog({ children, id, title }: Args) {
               Type <b>{title}</b> to confirm.
             </p>
 
-            <Input value={check} onChange={(e) => setCheck(e.target.value)} />
+            <Input
+              type="text"
+              value={check}
+              onChange={(e) => setCheck(e.target.value)}
+            />
           </div>
           <div className="flex">
             <Button
