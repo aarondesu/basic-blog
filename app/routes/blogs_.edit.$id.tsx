@@ -48,16 +48,21 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     .from("blogs")
     .select("*")
     .eq("id", Number(id))
-    .limit(1);
+    .single();
+
+  // Check if blog exists
+  if (!result.data) {
+    throw data(null, { status: 404 });
+  }
 
   // Check if logged in user is owner of blog
   const { user_id } = store.getState().auth;
-  if (user_id !== result.data?.at(0)?.user_id) {
+  if (user_id !== result.data.user_id) {
     throw data(null, { status: 401, statusText: "Unauthorized" });
   }
 
   return data({
-    blog: result.data?.at(0),
+    blog: result.data,
   });
 }
 
