@@ -84,32 +84,30 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
       <div className="container mx-auto space-y-6 my-4 px-4 md:px-0">
         <div className="space-y-4">
           <div className="">
-            <span className="flex items-end gap-4 mb-2 md:mb-0">
+            <span className="flex flex-col md:flex-row gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
               <h1 className="text-3xl font-black">{blog?.title}</h1>
               {roles.includes("Admin") && blog?.user_id === auth_user_id && (
-                <span className="flex-1">
-                  <ButtonGroup className="justify-self-end">
-                    <Button type="button" variant="outline" size="sm" asChild>
-                      <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
-                        <PencilIcon />
-                        Edit
-                      </Link>
-                    </Button>
-                    <ConfirmDeleteBlogDialog
-                      id={Number(blog?.id)}
-                      title={blog?.title ?? ""}
-                    >
-                      <Button type="button" variant="outline" size="sm">
-                        {/* <Link to={`/blogs/delete/${blog?.id}`}>
+                <ButtonGroup className="">
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
+                      <PencilIcon />
+                      Edit
+                    </Link>
+                  </Button>
+                  <ConfirmDeleteBlogDialog
+                    id={Number(blog?.id)}
+                    title={blog?.title ?? ""}
+                  >
+                    <Button type="button" variant="outline" size="sm">
+                      {/* <Link to={`/blogs/delete/${blog?.id}`}>
                       <TrashIcon />
                       Delete
                     </Link> */}
-                        <TrashIcon />
-                        Delete
-                      </Button>
-                    </ConfirmDeleteBlogDialog>
-                  </ButtonGroup>
-                </span>
+                      <TrashIcon />
+                      Delete
+                    </Button>
+                  </ConfirmDeleteBlogDialog>
+                </ButtonGroup>
               )}
             </span>
             <span className="flex gap-2">
