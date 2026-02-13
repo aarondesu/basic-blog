@@ -81,6 +81,7 @@ export default function Blogs({ loaderData }: Route.ComponentProps) {
     <div className="container mx-auto mt-4 space-y-4 px-4 md:px-0">
       <h2 className="text-4xl font-extrabold">Blogs</h2>
       <div className="space-y-4">
+        {blogs && blogs.length === 0 && <h3>No blogs to display</h3>}
         {blogs &&
           blogs.map((blog, index) => (
             <div key={index} className="border rounded-md p-4">

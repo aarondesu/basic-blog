@@ -60,6 +60,7 @@ export async function action({ request }: Route.ActionArgs) {
     );
   } else {
     session.flash("message", "Successfully logged in!");
+
     return redirect("/", {
       headers: {
         "Set-Cookie": await commitSession(session),

@@ -25,7 +25,15 @@ export const registerUserSchema = z
   });
 
 export const blogSchema = z.object({
+  user_id: z.string(),
   title: z.string().min(1, "Title is required"),
   image_url: z.string().optional(),
   body: z.string().min(1, "Body is required"),
+});
+
+export const commentInputSchema = z.object({
+  user_id: z.string(),
+  blog_id: z.number(),
+  body: z.string().min(1, "Body is required"),
+  image_url: z.string().optional(),
 });

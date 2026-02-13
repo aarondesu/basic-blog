@@ -9,6 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   username: string | undefined;
   user_id: string | undefined;
+  email: string | undefined;
   roles: string[];
 }
 
@@ -16,6 +17,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   username: undefined,
   user_id: undefined,
+  email: undefined,
   roles: [],
 };
 
@@ -43,11 +45,13 @@ export const authSlice = createSlice({
         username: string;
         roles: string[];
         user_id: string;
+        email: string;
       }>,
     ) => {
       state.username = action.payload.username;
       state.roles = action.payload.roles;
       state.user_id = action.payload.user_id;
+      state.email = action.payload.email;
     },
   },
   extraReducers: (builder) => {

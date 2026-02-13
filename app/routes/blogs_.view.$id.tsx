@@ -8,8 +8,13 @@ import dayjs from "dayjs";
 import { useAppSelector } from "~/redux/hooks";
 import { ButtonGroup } from "~/components/ui/button-group";
 import { Button } from "~/components/ui/button";
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { DeleteIcon, PencilIcon, TrashIcon } from "lucide-react";
 import ConfirmDeleteBlogDialog from "~/components/confirm-delete-blog-dialog";
+import CommentInput from "~/components/comment-input";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+
+import defaultAvatar from "~/assets/user.png";
+import Comment from "~/components/comment";
 
 export function HydrateFallback({}: Route.HydrateFallbackProps) {
   return <div className="container mx-auto">Test</div>;
@@ -20,7 +25,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const result = await client
     .from("view_blog_with_username")
-    .select("*")
+    .select(
+      "*, comments!blog_id(id, user_id, body, image_url, created_at, user:profiles!user_id(username))",
+    )
     .eq("id", Number(params.id))
     .limit(1);
 
@@ -48,20 +55,22 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export default function ViewBlog({ loaderData }: Route.ComponentProps) {
   const { blog } = loaderData;
-  const { roles, user_id: auth_user_id } = useAppSelector(
-    (state) => state.auth,
-  );
+  const {
+    roles,
+    user_id: auth_user_id,
+    isAuthenticated,
+  } = useAppSelector((state) => state.auth);
 
   return (
-    <div className="container mx-auto space-y-6 my-4">
+    <div className="container mx-auto space-y-6 my-4 px-4 md:px-0">
       <div className="space-y-4">
         <div className="">
-          <span className="flex items-end gap-4">
+          <span className="flex items-end gap-4 mb-2 md:mb-0">
             <h1 className="text-3xl font-black">{blog?.title}</h1>
             {roles.includes("Admin") && blog?.user_id === auth_user_id && (
               <span className="flex-1">
                 <ButtonGroup className="justify-self-end">
-                  <Button variant="outline" size="sm" asChild>
+                  <Button type="button" variant="outline" size="sm" asChild>
                     <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
                       <PencilIcon />
                       Edit
@@ -71,7 +80,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                     id={Number(blog?.id)}
                     title={blog?.title ?? ""}
                   >
-                    <Button variant="outline" size="sm">
+                    <Button type="button" variant="outline" size="sm">
                       {/* <Link to={`/blogs/delete/${blog?.id}`}>
                       <TrashIcon />
                       Delete
@@ -100,8 +109,26 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
           <p className="whitespace-pre-wrap">{blog?.body}</p>
         </div>
       </div>
-      <div className="border-t pt-3">
-        <h4 className="font-bold text-xl">Comments (0)</h4>
+      <div className="border-t pt-3 space-y-4">
+        <h4 className="font-bold text-xl">
+          Comments ({blog?.comments.length})
+        </h4>
+        {isAuthenticated ? (
+          <CommentInput blog_id={blog?.id ?? 0} />
+        ) : (
+          <div className="border bg-muted rounded-md px-4 py-6">
+            <Link to="/login" className="underline">
+              Login
+            </Link>{" "}
+            to comment
+          </div>
+        )}
+        <div className="flex flex-col">
+          {blog?.comments &&
+            blog.comments.map((comment, index) => (
+              <Comment key={comment.id} {...comment} />
+            ))}
+        </div>
       </div>
     </div>
   );

@@ -134,11 +134,11 @@ export default function Register({ actionData }: Route.ComponentProps) {
       </CardHeader>
       <CardContent>
         {actionData?.error && actionData.error.message && (
-          <div className="border border-destructive bg-destructive/8 px-2 py-2 text-destructive text-sm ">
+          <div className="border border-destructive bg-destructive/8 px-2 py-2 text-destructive text-sm mb-4">
             {actionData?.error?.message}
           </div>
         )}
-        <form onSubmit={onSubmit} id="register-form">
+        <form onSubmit={onSubmit} id="register-form" className="">
           <FieldGroup>
             <Controller
               name="username"

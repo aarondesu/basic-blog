@@ -84,6 +84,62 @@ export type Database = {
           },
         ];
       };
+      comments: {
+        Row: {
+          blog_id: number;
+          body: string;
+          created_at: string;
+          id: number;
+          image_url: string | null;
+          user_id: string;
+        };
+        Insert: {
+          blog_id: number;
+          body: string;
+          created_at?: string;
+          id?: number;
+          image_url?: string | null;
+          user_id: string;
+        };
+        Update: {
+          blog_id?: number;
+          body?: string;
+          created_at?: string;
+          id?: number;
+          image_url?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comments_blog_id_fkey";
+            columns: ["blog_id"];
+            isOneToOne: false;
+            referencedRelation: "blogs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_blog_id_fkey";
+            columns: ["blog_id"];
+            isOneToOne: false;
+            referencedRelation: "blogs_view";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_blog_id_fkey";
+            columns: ["blog_id"];
+            isOneToOne: false;
+            referencedRelation: "view_blog_with_username";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["user_id"];
+          },
+        ];
+      };
       media: {
         Row: {
           created_at: string;
