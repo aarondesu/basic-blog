@@ -178,15 +178,19 @@ export default function Navigation() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 {isAuthenticated === true ? (
-                  <Link to="/logout">Logout</Link>
+                  <Link to="/logout" reloadDocument>
+                    Logout
+                  </Link>
                 ) : (
-                  <Link to="/login">Sign In</Link>
+                  <Link to="/login" reloadDocument>
+                    Sign In
+                  </Link>
                 )}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Link to="/login" className="text-sm">
+          <Link to="/login" className="text-sm" reloadDocument>
             Login
           </Link>
         )}
