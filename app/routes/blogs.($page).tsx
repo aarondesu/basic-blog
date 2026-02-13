@@ -9,13 +9,16 @@ import {
   PaginationItem,
   PaginationLink,
 } from "~/components/ui/pagination";
+import { Button } from "~/components/ui/button";
+import { PlusIcon } from "lucide-react";
+import { useAppSelector } from "~/redux/hooks";
 
 export async function clientLoader({
   request,
   params,
 }: Route.ClientLoaderArgs) {
   // Get the page params
-  const page = Number(params.page ?? 1);
+  const current_page = Number(params.page ?? 1);
   const per_page = 5; // Temp, will change later
 
   // Load the data
@@ -23,7 +26,7 @@ export async function clientLoader({
   const result = await client
     .from("blogs_view")
     .select("*", { count: "exact" })
-    .range((page - 1) * per_page, page * per_page - 1)
+    .range((current_page - 1) * per_page, current_page * per_page - 1)
     .order("created_at", { ascending: false });
 
   // Throw error if past bounds
@@ -32,7 +35,7 @@ export async function clientLoader({
   }
 
   return data({
-    current_page: page,
+    current_page: current_page,
     last_page: Math.ceil((result.count ?? 1) / per_page),
     blogs: result.data,
   });
@@ -76,10 +79,21 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Blogs({ loaderData }: Route.ComponentProps) {
   const { blogs, current_page, last_page } = loaderData;
+  const { roles } = useAppSelector((state) => state.auth);
 
   return (
     <div className="container mx-auto mt-4 space-y-4 px-4 md:px-0">
-      <h2 className="text-4xl font-extrabold">Blogs</h2>
+      <div className="flex justify-between">
+        <h2 className="text-4xl font-extrabold">Blogs</h2>
+        {roles.includes("Admin") && (
+          <Button type="button" variant="outline" asChild>
+            <Link to="/blogs/create">
+              <PlusIcon />
+              Create
+            </Link>
+          </Button>
+        )}
+      </div>
       <div className="space-y-4">
         {blogs && blogs.length === 0 && <h3>No blogs to display</h3>}
         {blogs &&

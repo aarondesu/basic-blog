@@ -10,6 +10,12 @@ import ConfirmDeleteBlogDialog from "~/components/confirm-delete-blog-dialog";
 import CommentInput from "~/components/comment-input";
 
 import Comment from "~/components/comment";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+} from "~/components/ui/pagination";
 
 export function HydrateFallback({}: Route.HydrateFallbackProps) {
   return <div className="container mx-auto">Test</div>;
@@ -18,21 +24,34 @@ export function HydrateFallback({}: Route.HydrateFallbackProps) {
 export async function loader({ request, params }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
 
-  const result = await client
+  const blog = await client
     .from("view_blog_with_username")
-    .select(
-      "*, comments!blog_id(id, user_id, body, image_url, created_at, user:profiles!user_id(username))",
-    )
+    .select("*")
     .eq("id", Number(params.id))
     .single();
 
   // Check if no blog is found
-  if (!result.data) {
+  if (!blog.data) {
     throw data(null, { status: 404 });
   }
 
+  // Get comments
+  const current_page = Number(
+    new URL(request.url).searchParams.get("page") ?? 1,
+  );
+  const per_page = 10; // Temp, will change later
+  const comments = await client
+    .from("comments")
+    .select("*, user:profiles!user_id(username)", { count: "exact" })
+    .eq("blog_id", Number(blog.data.id))
+    .range((current_page - 1) * per_page, current_page * per_page - 1)
+    .order("created_at", { ascending: false });
+
   return data({
-    blog: result.data,
+    blog: blog.data,
+    comments: comments.data,
+    comments_last_page: Math.ceil((comments.count ?? 1) / per_page),
+    comments_current_page: current_page,
   });
 }
 
@@ -49,7 +68,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function ViewBlog({ loaderData }: Route.ComponentProps) {
-  const { blog } = loaderData;
+  const { blog, comments, comments_last_page, comments_current_page } =
+    loaderData;
   const {
     roles,
     user_id: auth_user_id,
@@ -64,32 +84,30 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
       <div className="container mx-auto space-y-6 my-4 px-4 md:px-0">
         <div className="space-y-4">
           <div className="">
-            <span className="flex items-end gap-4 mb-2 md:mb-0">
+            <span className="flex flex-col md:flex-row gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
               <h1 className="text-3xl font-black">{blog?.title}</h1>
               {roles.includes("Admin") && blog?.user_id === auth_user_id && (
-                <span className="flex-1">
-                  <ButtonGroup className="justify-self-end">
-                    <Button type="button" variant="outline" size="sm" asChild>
-                      <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
-                        <PencilIcon />
-                        Edit
-                      </Link>
-                    </Button>
-                    <ConfirmDeleteBlogDialog
-                      id={Number(blog?.id)}
-                      title={blog?.title ?? ""}
-                    >
-                      <Button type="button" variant="outline" size="sm">
-                        {/* <Link to={`/blogs/delete/${blog?.id}`}>
+                <ButtonGroup className="">
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
+                      <PencilIcon />
+                      Edit
+                    </Link>
+                  </Button>
+                  <ConfirmDeleteBlogDialog
+                    id={Number(blog?.id)}
+                    title={blog?.title ?? ""}
+                  >
+                    <Button type="button" variant="outline" size="sm">
+                      {/* <Link to={`/blogs/delete/${blog?.id}`}>
                       <TrashIcon />
                       Delete
                     </Link> */}
-                        <TrashIcon />
-                        Delete
-                      </Button>
-                    </ConfirmDeleteBlogDialog>
-                  </ButtonGroup>
-                </span>
+                      <TrashIcon />
+                      Delete
+                    </Button>
+                  </ConfirmDeleteBlogDialog>
+                </ButtonGroup>
               )}
             </span>
             <span className="flex gap-2">
@@ -109,9 +127,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
         <div className="border-t pt-3 space-y-4">
-          <h4 className="font-bold text-xl">
-            Comments ({blog?.comments.length})
-          </h4>
+          <h4 className="font-bold text-xl">Comments ({comments?.length})</h4>
           {isAuthenticated ? (
             <CommentInput blog_id={blog?.id ?? 0} />
           ) : (
@@ -123,11 +139,25 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
             </div>
           )}
           <div className="flex flex-col">
-            {blog?.comments &&
-              blog.comments.map((comment, index) => (
+            {comments &&
+              comments.map((comment, index) => (
                 <Comment key={comment.id} {...comment} />
               ))}
           </div>
+          <Pagination>
+            <PaginationContent>
+              {[...new Array(comments_last_page)].map((_, index) => (
+                <PaginationItem key={index}>
+                  <PaginationLink
+                    href={`?page=${index + 1}`}
+                    isActive={comments_current_page - 1 === index}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </div>
