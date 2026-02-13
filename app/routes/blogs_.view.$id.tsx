@@ -1,19 +1,14 @@
-import {
-  getSupabaseBrowserClient,
-  getSupabaseServerClient,
-} from "~/lib/supabase";
+import { getSupabaseServerClient } from "~/lib/supabase";
 import type { Route } from "./+types/blogs_.view.$id";
 import { data, Link } from "react-router";
 import dayjs from "dayjs";
 import { useAppSelector } from "~/redux/hooks";
 import { ButtonGroup } from "~/components/ui/button-group";
 import { Button } from "~/components/ui/button";
-import { DeleteIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { PencilIcon, TrashIcon } from "lucide-react";
 import ConfirmDeleteBlogDialog from "~/components/confirm-delete-blog-dialog";
 import CommentInput from "~/components/comment-input";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
-import defaultAvatar from "~/assets/user.png";
 import Comment from "~/components/comment";
 
 export function HydrateFallback({}: Route.HydrateFallbackProps) {
@@ -29,15 +24,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       "*, comments!blog_id(id, user_id, body, image_url, created_at, user:profiles!user_id(username))",
     )
     .eq("id", Number(params.id))
-    .limit(1);
+    .single();
 
   // Check if no blog is found
-  if (result.data && result.data.length === 0) {
+  if (!result.data) {
     throw data(null, { status: 404 });
   }
 
   return data({
-    blog: result.data?.at(0),
+    blog: result.data,
   });
 }
 
