@@ -18,7 +18,7 @@ import { store } from "./redux/store";
 import { getSupabaseServerClient } from "./lib/supabase";
 import { setAuthenticated, setUserInfo } from "./redux/reducers/auth";
 import { commitSession, getSession } from "./server.session";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -95,19 +95,42 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
-  const { isAuthenticated, roles, flash, profile, user_id, user } = loaderData;
-
-  // Set authenticated
-  store.dispatch(setAuthenticated(isAuthenticated));
-  store.dispatch(
-    setUserInfo({
-      username: profile?.username ?? "unavailable",
-      roles: roles?.map((role) => role.roles.role_name) ?? [],
-      user_id: user_id ?? "unavailable",
-      email: user?.email ?? "unavailable",
-    }),
+export default function App({ ...props }: Route.ComponentProps) {
+  return (
+    <Provider store={store}>
+      <AuthenticationHandler {...props} />
+      <Toaster />
+      <div className="min-h-svh flex flex-col">
+        <Header />
+        <main className="flex-1 grid mb-6">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+    </Provider>
   );
+}
+
+/**
+ * Temporary workaround for hydration errors
+ * @param param0
+ * @returns
+ */
+function AuthenticationHandler({ loaderData }: Route.ComponentProps) {
+  const { isAuthenticated, roles, flash, profile, user_id, user } = loaderData;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setAuthenticated(isAuthenticated));
+    dispatch(
+      setUserInfo({
+        username: profile?.username,
+        roles: roles?.map((role) => role.roles.role_name) ?? [],
+        user_id: user_id,
+        email: user?.email,
+      }),
+    );
+  }, [isAuthenticated, roles, profile, user_id, user]);
 
   // Handle flash messages
   const { error, message } = flash;
@@ -122,18 +145,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
     }
   }, [error, message]);
 
-  return (
-    <Provider store={store}>
-      <Toaster />
-      <div className="min-h-svh flex flex-col">
-        <Header />
-        <main className="flex-1 grid mb-6">
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
-    </Provider>
-  );
+  return null;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
