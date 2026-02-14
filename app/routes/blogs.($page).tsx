@@ -30,7 +30,7 @@ export async function clientLoader({
     .order("created_at", { ascending: false });
 
   // Throw error if past bounds
-  if (result.data === null) {
+  if (result.data === null || result.error || Number.isNaN(current_page)) {
     throw data(null, { status: 404 });
   }
 
