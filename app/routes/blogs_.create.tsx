@@ -1,12 +1,16 @@
 import type { Route } from "./+types/blogs_.create";
 
-import { data, redirect } from "react-router";
+import { data, redirect, type MiddlewareFunction } from "react-router";
 
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
 import BlogForm from "~/components/forms/blog.form";
+import { adminMiddleware, authMiddleware } from "~/middlewares";
 
-// Temp
+export const middleware: MiddlewareFunction[] = [
+  authMiddleware,
+  adminMiddleware,
+];
 
 export async function action({ request }: Route.ActionArgs) {
   // Get needed variables
@@ -36,29 +40,6 @@ export async function action({ request }: Route.ActionArgs) {
         "Set-Cookie": await commitSession(session),
       },
     });
-  }
-}
-
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const client = getSupabaseServerClient(request);
-  const user = (await client.auth.getUser()).data.user;
-
-  // Throw unauthorized error if user is null
-  if (!user) {
-    throw data(null, { status: 401, statusText: "Unauthorized" });
-  }
-
-  // Get roles
-  const roles = (
-    await client
-      .from("user_roles")
-      .select("role:roles(role_name)")
-      .eq("user_id", user.id)
-  ).data;
-
-  if (!roles?.find((role) => role.role.role_name === "Admin")) {
-    throw data(null, { status: 401, statusText: "Unauthorized" });
   }
 }
 

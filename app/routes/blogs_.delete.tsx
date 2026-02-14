@@ -1,7 +1,13 @@
-import { redirect } from "react-router";
+import { redirect, type MiddlewareFunction } from "react-router";
 import type { Route } from "./+types/blogs_.delete";
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
+import { authMiddleware } from "~/middlewares";
+
+/**
+ * auth middleware
+ */
+export const middleware: MiddlewareFunction[] = [authMiddleware];
 
 /**
  * Resource route, deletes the selected blog
