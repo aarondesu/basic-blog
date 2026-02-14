@@ -1,5 +1,5 @@
 import type { PostgrestError } from "@supabase/supabase-js";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigation, useSubmit } from "react-router";
 import { useAppSelector } from "~/redux/hooks";
@@ -53,7 +53,7 @@ export default function BlogForm({ mode, data, error }: Args) {
       title: data?.title ?? "",
       body: data?.body ?? "",
       image_url: data?.image_url ?? undefined,
-      user_id: user_id,
+      user_id: data?.user_id ?? user_id,
     },
   });
 
@@ -73,7 +73,7 @@ export default function BlogForm({ mode, data, error }: Args) {
   const submit = useSubmit();
   const onSubmit = form.handleSubmit((inputData) => {
     const formData = new FormData();
-    inputData.image_url = imageUrl;
+    if (imageUrl) inputData.image_url = imageUrl;
     Object.entries(inputData).forEach(([Key, value]) => {
       if (!value) return;
 
