@@ -3,10 +3,6 @@ import type { Route } from "./+types/blogs_.edit.$id";
 import { data, redirect, type MiddlewareFunction } from "react-router";
 import BlogForm from "~/components/forms/blog.form";
 import { commitSession, getSession } from "~/server.session";
-import { authMiddleware } from "~/middlewares";
-
-export const middleware: MiddlewareFunction[] = [authMiddleware];
-
 export async function action({ request }: Route.ActionArgs) {
   // Get needed variables
   const formData = await request.formData();
@@ -43,11 +39,9 @@ export async function action({ request }: Route.ActionArgs) {
 export async function loader({ params, request }: Route.LoaderArgs) {
   const { id } = params;
 
-  // Get blog data
   const client = getSupabaseServerClient(request);
   const user = (await client.auth.getUser()).data.user;
 
-  // Check if a user is logged in
   if (!user) {
     throw data(null, { status: 401, statusText: "Unauthorized" });
   }

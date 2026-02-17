@@ -1,13 +1,7 @@
-import { redirect, type MiddlewareFunction } from "react-router";
+import { data, redirect, type MiddlewareFunction } from "react-router";
 import type { Route } from "./+types/blogs_.delete";
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
-import { authMiddleware } from "~/middlewares";
-
-/**
- * auth middleware
- */
-export const middleware: MiddlewareFunction[] = [authMiddleware];
 
 /**
  * Resource route, deletes the selected blog
@@ -44,4 +38,13 @@ export async function action({ request }: Route.ActionArgs) {
       "Set-Cookie": await commitSession(session),
     },
   });
+}
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const client = getSupabaseServerClient(request);
+  const user = (await client.auth.getUser()).data.user;
+
+  if (!user) {
+    throw data(null, { status: 401, statusText: "Unauthorized" });
+  }
 }
