@@ -53,7 +53,7 @@ export function getSupabaseBrowserClient() {
   const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!browserClient) {
-    browserClient = createBrowserClient(supabaseUrl, supabaseKey);
+    browserClient = createBrowserClient<Database>(supabaseUrl, supabaseKey);
   }
 
   return browserClient;

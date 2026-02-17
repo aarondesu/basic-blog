@@ -88,7 +88,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
           <div className="">
             <span className="flex flex-col md:flex-row gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
               <h1 className="text-3xl font-black">{blog?.title}</h1>
-              {roles.includes("Admin") && blog?.user_id === auth_user_id && (
+              {isAuthenticated && blog?.user_id === auth_user_id && (
                 <ButtonGroup className="">
                   <Button type="button" variant="outline" size="sm" asChild>
                     <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>

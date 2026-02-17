@@ -1,7 +1,10 @@
-import { redirect } from "react-router";
+import { redirect, type MiddlewareFunction } from "react-router";
 import type { Route } from "./+types/_auth.logout";
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
+import { authMiddleware } from "~/middlewares";
+
+export const middleware: MiddlewareFunction[] = [authMiddleware];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
