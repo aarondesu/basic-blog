@@ -1,7 +1,5 @@
 import { data, type MiddlewareFunction } from "react-router";
 import { getSupabaseServerClient } from "./lib/supabase";
-import { getSession } from "./server.session";
-import type { QueryResult, QueryData, QueryError } from "@supabase/supabase-js";
 
 /**
  * Auth middleware, to be used in server side middlewares

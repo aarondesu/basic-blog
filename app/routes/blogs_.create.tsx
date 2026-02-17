@@ -5,12 +5,9 @@ import { data, redirect, type MiddlewareFunction } from "react-router";
 import { getSupabaseServerClient } from "~/lib/supabase";
 import { commitSession, getSession } from "~/server.session";
 import BlogForm from "~/components/forms/blog.form";
-import { adminMiddleware, authMiddleware } from "~/middlewares";
+import { authMiddleware } from "~/middlewares";
 
-export const middleware: MiddlewareFunction[] = [
-  authMiddleware,
-  adminMiddleware,
-];
+export const middleware: MiddlewareFunction[] = [authMiddleware];
 
 export async function action({ request }: Route.ActionArgs) {
   // Get needed variables

@@ -46,6 +46,7 @@ type Args = {
  */
 export default function BlogForm({ mode, data, error }: Args) {
   const { user_id } = useAppSelector((state) => state.auth);
+
   const navigation = useNavigation();
   const form = useForm<z.infer<typeof blogSchema>>({
     resolver: zodResolver(blogSchema),
@@ -53,9 +54,16 @@ export default function BlogForm({ mode, data, error }: Args) {
       title: data?.title ?? "",
       body: data?.body ?? "",
       image_url: data?.image_url ?? undefined,
-      user_id: data?.user_id ?? user_id,
+      user_id: data?.user_id,
     },
   });
+
+  // Set user id if user ID is not null
+  useEffect(() => {
+    if (user_id) {
+      form.setValue("user_id", user_id);
+    }
+  }, [user_id]);
 
   const isLoading = navigation.state !== "idle";
 

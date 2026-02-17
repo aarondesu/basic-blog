@@ -65,10 +65,10 @@ const links: MenuLink[] = [
  */
 export default function Navigation() {
   const [open, setOpen] = useState<boolean>(false);
-  const { roles } = useAppSelector((state) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  // const isAuthenticated = false;
 
   const isMobile = useIsMobile();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   if (isMobile) {
     return (
@@ -147,7 +147,7 @@ export default function Navigation() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
             ))}
-            {roles.includes("Admin") && (
+            {isAuthenticated && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link to="/blogs/create" reloadDocument>
@@ -173,7 +173,7 @@ export default function Navigation() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                {isAuthenticated === true ? (
+                {isAuthenticated ? (
                   <Link to="/logout" reloadDocument>
                     Logout
                   </Link>
