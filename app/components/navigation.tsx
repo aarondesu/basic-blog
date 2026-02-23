@@ -40,6 +40,7 @@ import {
 } from "./ui/sidebar";
 import MobileNavUser from "./mobile-nav-user";
 import { VisuallyHidden } from "radix-ui";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface MenuLink {
   label: string;
@@ -148,13 +149,20 @@ export default function Navigation() {
               </NavigationMenuItem>
             ))}
             {isAuthenticated && (
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/blogs/create" reloadDocument>
-                    <PlusIcon />
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+              <Tooltip defaultOpen>
+                <TooltipTrigger>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink asChild>
+                      <Link to="/blogs/create" reloadDocument>
+                        <PlusIcon />
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Create a blog</p>
+                </TooltipContent>
+              </Tooltip>
             )}
           </NavigationMenuList>
         </NavigationMenu>

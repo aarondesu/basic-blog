@@ -19,6 +19,7 @@ import { getSupabaseServerClient } from "./lib/supabase";
 import { setAuthenticated, setUserInfo } from "./redux/reducers/auth";
 import { commitSession, getSession } from "./server.session";
 import React, { useEffect } from "react";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -98,15 +99,17 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function App({ ...props }: Route.ComponentProps) {
   return (
     <Provider store={store}>
-      <AuthenticationHandler {...props} />
-      <Toaster />
-      <div className="min-h-svh flex flex-col">
-        <Header />
-        <main className="flex-1 grid mb-6">
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
+      <TooltipProvider>
+        <AuthenticationHandler {...props} />
+        <Toaster />
+        <div className="min-h-svh flex flex-col">
+          <Header />
+          <main className="flex-1 grid mb-6">
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
+      </TooltipProvider>
     </Provider>
   );
 }
