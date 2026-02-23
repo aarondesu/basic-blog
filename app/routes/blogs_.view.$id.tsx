@@ -81,7 +81,10 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
   return (
     <div>
       {blog?.image_url && blog.image_url !== "undefined" && (
-        <img src={blog.image_url} className="w-full object-top" />
+        <img
+          src={blog.image_url}
+          className="w-full max-h-[calc(100vh-70px)] object-cover object-center"
+        />
       )}
       <div className="container mx-auto space-y-6 my-4 px-4 md:px-0">
         <div className="space-y-4">
