@@ -17,13 +17,14 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from "../ui/file-upload";
-import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
+import { Loader2Icon, Trash2Icon, UploadIcon, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { useUploadImage } from "~/lib/utils";
+import { getFilenameFromUrl, useUploadImage } from "~/lib/utils";
 import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
+import { ButtonGroup } from "../ui/button-group";
 
 type Args = {
   mode: "create" | "edit";
@@ -57,6 +58,7 @@ export default function BlogForm({ mode, data, error }: Args) {
       user_id: data?.user_id,
     },
   });
+  const { image_url } = form.watch();
 
   // Set user id if user ID is not null
   useEffect(() => {
@@ -96,6 +98,13 @@ export default function BlogForm({ mode, data, error }: Args) {
     });
   });
 
+  // Handle deletion of image
+  const onDelete = useCallback(() => {
+    if (image_url) {
+      form.setValue("image_url", undefined);
+    }
+  }, [form, image_url]);
+
   return (
     <div className="">
       {error && <div>{error.message}</div>}
@@ -123,61 +132,92 @@ export default function BlogForm({ mode, data, error }: Args) {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Image</FieldLabel>
-                <FileUpload
-                  accept="image/*"
-                  maxFiles={1}
-                  maxSize={10 * 1024 * 1024}
-                  onFileReject={onFileReject}
-                  value={files}
-                  onValueChange={setFiles}
-                  onUpload={onUpload}
-                  className=""
-                  disabled={isLoading || isUploading}
-                >
-                  {files.length === 0 && (
-                    <FileUploadDropzone>
-                      <div className="flex flex-col items-center gap-1 text-center">
-                        <div className="flex items-center justify-center rounded-full border p-2.5">
-                          <UploadIcon className="size-6 text-muted-foreground" />
+                <div className="flex items-center justify-between">
+                  <FieldLabel>Image</FieldLabel>
+                </div>
+                {image_url && data?.image_url && mode === "edit" ? (
+                  <div className="flex p-2.5 border items-center rounded-md justify-between">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={data.image_url}
+                        className="w-25 h-25 object-cover"
+                      />
+                      <span className="flex flex-col gap-1">
+                        <p className="font-bold text-sm">
+                          {getFilenameFromUrl(data.image_url)}
+                        </p>
+                        <p className="text-muted-foreground text-sm">
+                          Current Image
+                        </p>
+                      </span>
+                    </div>
+                    <Button
+                      className=""
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={onDelete}
+                    >
+                      <XIcon />
+                    </Button>
+                  </div>
+                ) : (
+                  <FileUpload
+                    accept="image/*"
+                    maxFiles={1}
+                    maxSize={10 * 1024 * 1024}
+                    onFileReject={onFileReject}
+                    value={files}
+                    onValueChange={setFiles}
+                    onUpload={onUpload}
+                    className=""
+                    disabled={isLoading || isUploading}
+                  >
+                    {files.length === 0 && (
+                      <FileUploadDropzone>
+                        <div className="flex flex-col items-center gap-1 text-center">
+                          <div className="flex items-center justify-center rounded-full border p-2.5">
+                            <UploadIcon className="size-6 text-muted-foreground" />
+                          </div>
+                          <p className="font-medium text-sm">
+                            Drag & drop file here
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            Or click to browse (max 1 file)
+                          </p>
                         </div>
-                        <p className="font-medium text-sm">
-                          Drag & drop file here
-                        </p>
-                        <p className="text-muted-foreground text-xs">
-                          Or click to browse (max 1 file)
-                        </p>
-                      </div>
-                      <FileUploadTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mt-2 w-fit"
-                        >
-                          Browse files
-                        </Button>
-                      </FileUploadTrigger>
-                    </FileUploadDropzone>
-                  )}
-                  <FileUploadList>
-                    {files.map((file, index) => (
-                      <FileUploadItem key={index} value={file}>
-                        <FileUploadItemPreview />
-                        <FileUploadItemMetadata />
-                        <FileUploadItemProgress />
-                        <FileUploadItemDelete asChild>
+                        <FileUploadTrigger asChild>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7"
+                            variant="outline"
+                            size="sm"
+                            className="mt-2 w-fit"
                           >
-                            <XIcon />
+                            Browse files
                           </Button>
-                        </FileUploadItemDelete>
-                      </FileUploadItem>
-                    ))}
-                  </FileUploadList>
-                </FileUpload>
+                        </FileUploadTrigger>
+                      </FileUploadDropzone>
+                    )}
+                    <FileUploadList>
+                      {files.map((file, index) => (
+                        <FileUploadItem key={index} value={file}>
+                          <FileUploadItemPreview />
+                          <FileUploadItemMetadata />
+                          <FileUploadItemProgress />
+                          <FileUploadItemDelete asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                            >
+                              <XIcon />
+                            </Button>
+                          </FileUploadItemDelete>
+                        </FileUploadItem>
+                      ))}
+                    </FileUploadList>
+                  </FileUpload>
+                )}
+
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}

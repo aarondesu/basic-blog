@@ -14,7 +14,7 @@ export async function action({ request }: Route.ActionArgs) {
     .from("blogs")
     .update({
       title: formData.get("title") as string,
-      image_url: formData.get("image_url") as string,
+      image_url: (formData.get("image_url") as string) ?? null,
       body: formData.get("body") as string,
     })
     .eq("id", Number(formData.get("id")));

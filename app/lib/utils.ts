@@ -14,6 +14,20 @@ export function randString() {
   return random;
 }
 
+export function getFilenameFromUrl(url_string: string) {
+  try {
+    const url = new URL(url_string);
+
+    const pathname = url.pathname;
+    const filename = pathname.substring(pathname.lastIndexOf("/") + 1);
+
+    return filename;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 export function useUploadImage() {
   const client = getSupabaseBrowserClient();
   const [isUploading, setIsUploading] = useState<boolean>(false);
