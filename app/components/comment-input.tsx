@@ -1,6 +1,7 @@
 import { useAppSelector } from "~/redux/hooks";
 import {
   FileUpload,
+  FileUploadDropzone,
   FileUploadItem,
   FileUploadItemDelete,
   FileUploadItemPreview,
@@ -17,9 +18,11 @@ import { Textarea } from "./ui/textarea";
 import { Field } from "./ui/field";
 import { Button } from "./ui/button";
 import {
+  ImageOffIcon,
   PaperclipIcon,
   SendHorizonalIcon,
   SendHorizontalIcon,
+  UploadIcon,
   XIcon,
 } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -31,21 +34,22 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "./ui/input-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 type Args = {
-  blog_id: number;
+  blog_id?: number;
   mode?: "create" | "edit";
-  defaultValue?: string;
   comment_id?: number;
   onSuccess?: () => void;
+  comment?: Partial<CommentInput>;
 };
 
 export default function CommentInput({
   blog_id,
   mode = "create",
-  defaultValue,
   comment_id,
   onSuccess,
+  comment,
 }: Args) {
   const { user_id } = useAppSelector((state) => state.auth);
   const fetcher = useFetcher();
@@ -55,9 +59,10 @@ export default function CommentInput({
   const form = useForm<CommentInput>({
     resolver: zodResolver(commentInputSchema),
     defaultValues: {
-      body: defaultValue ?? "",
-      user_id: user_id,
-      blog_id: blog_id,
+      body: comment?.body ?? "",
+      user_id: comment?.user_id ?? user_id,
+      blog_id: comment?.blog_id ?? blog_id,
+      image_url: comment?.image_url,
     },
   });
 
@@ -70,7 +75,7 @@ export default function CommentInput({
   // Handle submitting of form
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
-    data.image_url = imageUrl;
+    data.image_url = imageUrl ?? data.image_url;
 
     Object.entries(data).forEach(([key, value]) => {
       if (!value) return;
@@ -122,6 +127,11 @@ export default function CommentInput({
     toast.message(message);
   }, []);
 
+  // Handle image removal (only on edit)
+  const onRemoveImage = useCallback(() => {
+    form.setValue("image_url", undefined);
+  }, []);
+
   return (
     <FileUpload
       accept="image/*"
@@ -134,41 +144,70 @@ export default function CommentInput({
     >
       <fetcher.Form onSubmit={onSubmit}>
         <div className="flex flex-col">
-          <FileUploadList orientation="horizontal">
-            {files.map((file, index) => (
-              <FileUploadItem key={index} value={file}>
-                <FileUploadItemPreview className="size-8 [&>svg:size-5]">
-                  <FileUploadItemProgress variant="fill" />
-                </FileUploadItemPreview>
-                <FileUploadItemDelete asChild>
-                  <Button
-                    variant="secondary"
-                    type="button"
-                    size="icon-sm"
-                    className="absolute -top-1 -right-1 size-4 shrink-0 cursor cursor-pointer rounded-full "
-                  >
-                    <XIcon className="size-2.5" />
-                  </Button>
-                </FileUploadItemDelete>
-              </FileUploadItem>
-            ))}
-          </FileUploadList>
           <Controller
             name="body"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <div className="grid w-full gap-6">
-                  <InputGroup>
+                  <InputGroup className="bg-white">
                     <InputGroupTextarea
                       {...field}
                       placeholder="Add your comment here"
                       disabled={isLoading || isUploading}
                     />
+                    {mode === "edit" && form.getValues("image_url") && (
+                      <InputGroupAddon align="block-start">
+                        <img
+                          src={form.getValues("image_url")}
+                          className="max-w-sm object-cover"
+                        />
+                      </InputGroupAddon>
+                    )}
+                    {files.length !== 0 && (
+                      <InputGroupAddon align="block-start">
+                        <FileUploadList orientation="horizontal">
+                          {files.map((file, index) => (
+                            <FileUploadItem key={index} value={file}>
+                              <FileUploadItemPreview className="size-25 [&>svg:size-5] ">
+                                <FileUploadItemProgress variant="fill" />
+                              </FileUploadItemPreview>
+                              <FileUploadItemDelete asChild>
+                                <Button
+                                  variant="secondary"
+                                  type="button"
+                                  size="icon-sm"
+                                  className="absolute -top-1 -right-1 size-4 shrink-0 cursor cursor-pointer rounded-full "
+                                >
+                                  <XIcon className="size-2.5" />
+                                </Button>
+                              </FileUploadItemDelete>
+                            </FileUploadItem>
+                          ))}
+                        </FileUploadList>
+                      </InputGroupAddon>
+                    )}
                     <InputGroupAddon
                       align="block-end"
                       className="flex justify-end"
                     >
+                      {mode === "edit" && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InputGroupButton
+                              variant="outline"
+                              type="button"
+                              size="icon-sm"
+                              onClick={onRemoveImage}
+                            >
+                              <ImageOffIcon />
+                            </InputGroupButton>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Remove image</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                       <FileUploadTrigger asChild>
                         <InputGroupButton
                           type="button"

@@ -18,7 +18,7 @@ type Args = {
   blog_id: number;
   user_id: string;
   body: string;
-  image_url: string | null;
+  image_url: string | null | undefined;
   created_at: string;
   user: {
     username: string;
@@ -26,7 +26,7 @@ type Args = {
 };
 
 export default function Comment(comment: React.PropsWithoutRef<Args>) {
-  const [isEdditing, setEditing] = useState<boolean>(false);
+  const [isEditing, setEditing] = useState<boolean>(false);
   const { user_id } = useAppSelector((state) => state.auth);
   const fetcher = useFetcher();
 
@@ -79,7 +79,7 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
                 type="button"
                 variant="default"
                 onPressedChange={(p) => setEditing((editing) => (editing = p))}
-                pressed={isEdditing}
+                pressed={isEditing}
               >
                 <PencilIcon />
               </Toggle>
@@ -95,22 +95,26 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
           )}
         </span>
       </div>
-      {comment.image_url && (
+      {comment.image_url && !isEditing && (
         <img src={comment.image_url} className="w-full object-cover md:w-64" />
       )}
       <div className="bg-accent rounded-md p-4">
-        {comment.user_id === user_id && isEdditing ? (
+        {comment.user_id === user_id && isEditing ? (
           <CommentInput
-            blog_id={comment.blog_id}
             mode="edit"
-            defaultValue={comment.body}
             comment_id={comment.id}
+            comment={{
+              blog_id: comment.blog_id,
+              body: comment.body,
+              image_url: comment.image_url ?? undefined,
+              user_id: comment.user_id,
+            }}
             onSuccess={() => {
               setEditing((editing) => (editing = false));
             }}
           />
         ) : (
-          <p className="text-sm">{comment.body}</p>
+          <p className="text-sm whitespace-pre-wrap">{comment.body}</p>
         )}
       </div>
     </div>
