@@ -19,7 +19,7 @@ import { Button } from "./ui/button";
 import { PaperclipIcon, SendHorizonalIcon, XIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { useUploadImage } from "~/lib/utils";
+import { useUploadImage } from "~/hooks/use-uplaod-image";
 
 type Args = {
   blog_id: number;

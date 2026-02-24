@@ -20,7 +20,8 @@ import {
 import { Loader2Icon, Trash2Icon, UploadIcon, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { getFilenameFromUrl, useUploadImage } from "~/lib/utils";
+import { getFilenameFromUrl } from "~/lib/utils";
+import { useUploadImage } from "~/hooks/use-uplaod-image";
 import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
