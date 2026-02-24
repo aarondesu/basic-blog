@@ -109,22 +109,6 @@ export default function Navigation() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
             ))}
-            {isAuthenticated && (
-              <Tooltip defaultOpen>
-                <TooltipTrigger>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link to="/blogs/create" reloadDocument>
-                        <PlusIcon />
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Create a blog</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
           </NavigationMenuList>
         </NavigationMenu>
       </div>
