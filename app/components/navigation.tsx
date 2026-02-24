@@ -7,40 +7,27 @@ import {
 } from "./ui/navigation-menu";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Button } from "./ui/button";
-import { ChevronDown, MenuIcon, PlusIcon } from "lucide-react";
+import { MenuIcon, PlusIcon } from "lucide-react";
 import { useAppSelector } from "~/redux/hooks";
-import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "./ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-
-import defaultAvatar from "~/assets/user.png";
 import { useState } from "react";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarSeparator,
-} from "./ui/sidebar";
-import MobileNavUser from "./mobile-nav-user";
-import { VisuallyHidden } from "radix-ui";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { VisuallyHidden } from "radix-ui";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./ui/drawer";
 
 interface MenuLink {
   label: string;
@@ -73,62 +60,36 @@ export default function Navigation() {
 
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="mx-2">
+      <Drawer open={open} onOpenChange={setOpen} direction="right">
+        <DrawerTrigger asChild>
+          <Button variant="ghost" size="icon" className="mx-2">
             <MenuIcon />
           </Button>
-        </SheetTrigger>
-        <SheetContent
-          showCloseButton={false}
-          aria-describedby="mobile-navigation"
-          className="w-fit"
-        >
-          <VisuallyHidden.Root>
-            <SheetHeader>
-              <SheetTitle>myBlog</SheetTitle>
-            </SheetHeader>
-          </VisuallyHidden.Root>
-          <SidebarProvider>
-            <Sidebar collapsible="none" className="bg-transparent">
-              <SidebarHeader>
-                <MobileNavUser />
-              </SidebarHeader>
-              <SidebarSeparator />
-              <SidebarContent>
-                <SidebarGroup>
-                  <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                  <SidebarGroupContent>
-                    {links.map((link, index) => (
-                      <SidebarMenuItem key={index}>
-                        <SidebarMenuButton asChild>
-                          <Link to={link.url} reloadDocument>
-                            {link.label}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarGroupContent>
-                </SidebarGroup>
-                {isAuthenticated && (
-                  <SidebarGroup>
-                    <SidebarGroupLabel>Blogs</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                          <Link to="/blogs/create" reloadDocument>
-                            Create New Blog
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </SidebarGroupContent>
-                  </SidebarGroup>
-                )}
-              </SidebarContent>
-            </Sidebar>
-          </SidebarProvider>
-        </SheetContent>
-      </Sheet>
+        </DrawerTrigger>
+        <DrawerContent className="">
+          <DrawerHeader>
+            <DrawerTitle>Navigation</DrawerTitle>
+            <VisuallyHidden.Root>
+              <DrawerDescription />
+            </VisuallyHidden.Root>
+            <div className="flex flex-col gap-2 mt-4">
+              <ul className="flex flex-col gap-2">
+                {links.map((link, index) => (
+                  <li key={index} className="flex">
+                    <Link
+                      to={link.url}
+                      reloadDocument
+                      className="py-2 px-4 flex-1"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </DrawerHeader>
+        </DrawerContent>
+      </Drawer>
     );
   } else {
     return (
@@ -166,38 +127,6 @@ export default function Navigation() {
             )}
           </NavigationMenuList>
         </NavigationMenu>
-        {isAuthenticated ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Avatar size="sm" className="bg-muted-foreground">
-                  <AvatarImage src={defaultAvatar} alt="user" />
-                  <AvatarFallback>U</AvatarFallback>
-                  <AvatarBadge>
-                    <ChevronDown />
-                  </AvatarBadge>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                {isAuthenticated ? (
-                  <Link to="/logout" reloadDocument>
-                    Logout
-                  </Link>
-                ) : (
-                  <Link to="/login" reloadDocument>
-                    Sign In
-                  </Link>
-                )}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Link to="/login" className="text-sm" reloadDocument>
-            Login
-          </Link>
-        )}
       </div>
     );
   }

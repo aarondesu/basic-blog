@@ -11,7 +11,6 @@ export default function Hero({ title, description }: Args) {
   return (
     <div
       className={cn(
-        // `bg-[url('./images/pexels-andreea-ch-371539-1166644.jpg')]`,
         `bg-[url('/assets/images/pexels-andreea-ch-371539-1166644.jpg')]`,
         "bg-cover bg-no-repeat bg-bottom-left md:bg-bottom",
         "flex h-svh md:h-full",
