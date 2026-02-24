@@ -16,10 +16,21 @@ import { useFetcher } from "react-router";
 import { Textarea } from "./ui/textarea";
 import { Field } from "./ui/field";
 import { Button } from "./ui/button";
-import { PaperclipIcon, SendHorizonalIcon, XIcon } from "lucide-react";
+import {
+  PaperclipIcon,
+  SendHorizonalIcon,
+  SendHorizontalIcon,
+  XIcon,
+} from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useUploadImage } from "~/hooks/use-uplaod-image";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupTextarea,
+} from "./ui/input-group";
 
 type Args = {
   blog_id: number;
@@ -122,7 +133,7 @@ export default function CommentInput({
       onUpload={onUpload}
     >
       <fetcher.Form onSubmit={onSubmit}>
-        <div className="flex flex-col gap-2 p-3 rounded-md border border-input outline-none shadow-md focus-within:ring-1 focus-within:ring-ring/50">
+        <div className="flex flex-col">
           <FileUploadList orientation="horizontal">
             {files.map((file, index) => (
               <FileUploadItem key={index} value={file}>
@@ -147,34 +158,41 @@ export default function CommentInput({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <Textarea
-                  {...field}
-                  placeholder="Add your comment here"
-                  className="field-sizing-content w-full min-h-10 resize-none border-0 bg-transparent p-0 focus-visible:ring-0 dark:bg-transparent shadow-none focus:ring-0 focus:border-none"
-                  disabled={isLoading}
-                />
+                <div className="grid w-full gap-6">
+                  <InputGroup>
+                    <InputGroupTextarea
+                      {...field}
+                      placeholder="Add your comment here"
+                      disabled={isLoading || isUploading}
+                    />
+                    <InputGroupAddon
+                      align="block-end"
+                      className="flex justify-end"
+                    >
+                      <FileUploadTrigger asChild>
+                        <InputGroupButton
+                          type="button"
+                          size="icon-sm"
+                          variant="outline"
+                          disabled={isLoading || isUploading}
+                        >
+                          <PaperclipIcon />
+                        </InputGroupButton>
+                      </FileUploadTrigger>
+                      <InputGroupButton
+                        type="submit"
+                        size="icon-sm"
+                        variant="default"
+                        disabled={isLoading || isUploading}
+                      >
+                        <SendHorizontalIcon />
+                      </InputGroupButton>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </div>
               </Field>
             )}
           />
-          <div className="flex gap-2 justify-end">
-            <FileUploadTrigger asChild>
-              <Button
-                type="button"
-                size="icon-sm"
-                variant="outline"
-                disabled={isLoading || isUploading}
-              >
-                <PaperclipIcon />
-              </Button>
-            </FileUploadTrigger>
-            <Button
-              type="submit"
-              size="icon-sm"
-              disabled={isLoading || body.length === 0 || isUploading}
-            >
-              <SendHorizonalIcon />
-            </Button>
-          </div>
         </div>
       </fetcher.Form>
     </FileUpload>
