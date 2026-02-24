@@ -23,9 +23,19 @@ import { useUploadImage } from "~/hooks/use-uplaod-image";
 
 type Args = {
   blog_id: number;
+  mode?: "create" | "edit";
+  defaultValue?: string;
+  comment_id?: number;
+  onSuccess?: () => void;
 };
 
-export default function CommentInput({ blog_id }: Args) {
+export default function CommentInput({
+  blog_id,
+  mode = "create",
+  defaultValue,
+  comment_id,
+  onSuccess,
+}: Args) {
   const { user_id } = useAppSelector((state) => state.auth);
   const fetcher = useFetcher();
 
@@ -34,7 +44,7 @@ export default function CommentInput({ blog_id }: Args) {
   const form = useForm<CommentInput>({
     resolver: zodResolver(commentInputSchema),
     defaultValues: {
-      body: "",
+      body: defaultValue ?? "",
       user_id: user_id,
       blog_id: blog_id,
     },
@@ -57,22 +67,43 @@ export default function CommentInput({ blog_id }: Args) {
     });
 
     // Submit to comment action route
-    // submit(formData, { action: "/comments/create", method: "POST" });
-    toast.promise(
-      fetcher.submit(formData, {
-        action: "/comments/create",
-        method: "POST",
-      }),
-      {
-        loading: "Posting comment...",
-        success: () => {
-          form.resetField("body"); // Clear the text area after posting
-          form.resetField("image_url");
-          setFiles([]);
-          return "Successfully posted comment!";
+    if (mode === "create") {
+      toast.promise(
+        fetcher.submit(formData, {
+          action: "/comments/create",
+          method: "POST",
+        }),
+        {
+          loading: "Posting comment...",
+          success: () => {
+            form.resetField("body"); // Clear the text area after posting
+            form.resetField("image_url");
+            setFiles([]);
+            onSuccess?.();
+            return "Successfully posted comment!";
+          },
         },
-      },
-    );
+      );
+    } else if (mode === "edit") {
+      console.log(formData.entries());
+
+      toast.promise(
+        fetcher.submit(formData, {
+          action: `/comments/update/${comment_id}`,
+          method: "PUT",
+        }),
+        {
+          loading: "Posting comment...",
+          success: () => {
+            form.resetField("body"); // Clear the text area after posting
+            form.resetField("image_url");
+            setFiles([]);
+            onSuccess?.();
+            return "Successfully updated comment!";
+          },
+        },
+      );
+    }
   });
 
   // Handle file reject
@@ -139,7 +170,6 @@ export default function CommentInput({ blog_id }: Args) {
             <Button
               type="submit"
               size="icon-sm"
-              variant="secondary"
               disabled={isLoading || body.length === 0 || isUploading}
             >
               <SendHorizonalIcon />
