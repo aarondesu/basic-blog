@@ -13,7 +13,7 @@ export default function Hero({ title, description }: Args) {
       className={cn(
         `bg-[url('/assets/images/pexels-andreea-ch-371539-1166644.jpg')]`,
         "bg-cover bg-no-repeat bg-bottom-left md:bg-bottom",
-        "flex min-h-svh md:min-h-[calc(100vh-70px)] ",
+        "flex min-h-svh md:min-h-[calc(100vh-70px)] md:max-h-360",
       )}
     >
       <div className="space-y-6 w-100 m-auto items-center text-center">

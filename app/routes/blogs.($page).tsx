@@ -20,7 +20,7 @@ export async function clientLoader({
 }: Route.ClientLoaderArgs) {
   // Get the page params
   const current_page = Number(params.page ?? 1);
-  const per_page = 5; // Temp, will change later
+  const per_page = 10; // Temp, will change later
 
   // Load the data
   const client = getSupabaseServerClient(request);
