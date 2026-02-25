@@ -34,30 +34,19 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
   const fetcher = useFetcher();
 
   const onDeleteClick = useCallback(() => {
-    toast.warning(
-      "Are you sure you want to delete the comment? Action is irreversible",
-      {
-        action: {
-          label: "Confirm",
-          onClick: () => {
-            toast.promise(
-              fetcher.submit(null, {
-                action: `/comments/delete/${comment.id}`,
-                method: "DELETE",
-              }),
-              {
-                loading: "Deleting comment...",
-                success: () => {
-                  setEditing((editing) => (editing = false));
+    createDialog({
+      title: "Delete Comment",
+      description:
+        "Are you sure you want to delete this comment? Action is irreversible",
+      onConfirm: async () => {
+        await fetcher.submit(null, {
+          action: `/comments/delete/${comment.id}`,
+          method: "DELETE",
+        });
 
-                  return "Successfully deleted comment!";
-                },
-              },
-            );
-          },
-        },
+        toast.success("Successfully deleted comment!");
       },
-    );
+    });
   }, []);
 
   return (
@@ -93,7 +82,7 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
                       createDialog({
                         title: "Discard Changes",
                         description:
-                          "Are you sure you want to discard the chanages made?",
+                          "Are you sure you want to discard the chanags made?",
                         onConfirm: () => {
                           setEditing((editing) => (editing = p));
                         },

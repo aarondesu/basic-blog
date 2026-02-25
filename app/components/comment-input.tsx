@@ -150,6 +150,7 @@ export default function CommentInput({
       maxFiles={1}
       onFileReject={onReject}
       onUpload={onUpload}
+      disabled={isUploading}
     >
       <fetcher.Form onSubmit={onSubmit}>
         <div className="flex flex-col">
