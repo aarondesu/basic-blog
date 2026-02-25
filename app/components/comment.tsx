@@ -69,8 +69,8 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
             <div
               className={cn(
                 "justify-end flex",
-                "md:invisible md:group-hover:visible md:opacity-0 md:group-hover:opacity-100 md:ease-out md:duration-200", // Animation
-                isEditing && "flex opacity-100 visible", // Display if editing
+                !isEditing &&
+                  "md:invisible md:group-hover:visible md:opacity-0 md:group-hover:opacity-100 md:ease-in-out md:duration-200", // Animation
               )}
             >
               <ButtonGroup className="">
