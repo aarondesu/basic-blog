@@ -1,8 +1,6 @@
 import { Link } from "react-router";
 import { FaGithub } from "react-icons/fa";
 
-import githubIcon from "~/assets/github.svg";
-
 export default function Footer() {
   return (
     <div className="bg-gray-800">
