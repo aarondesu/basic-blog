@@ -73,7 +73,7 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "blogs_view";
-            referencedColumns: ["uid"];
+            referencedColumns: ["user_id"];
           },
           {
             foreignKeyName: "blogs_user_id_fkey";
@@ -195,7 +195,7 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: true;
             referencedRelation: "blogs_view";
-            referencedColumns: ["uid"];
+            referencedColumns: ["user_id"];
           },
           {
             foreignKeyName: "profiles_user_id_fkey";
@@ -247,7 +247,7 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "blogs_view";
-            referencedColumns: ["uid"];
+            referencedColumns: ["user_id"];
           },
           {
             foreignKeyName: "user_roles_user_id_fkey";
@@ -268,7 +268,7 @@ export type Database = {
           id: number | null;
           image_url: string | null;
           title: string | null;
-          uid: string | null;
+          user_id: string | null;
         };
         Relationships: [];
       };
