@@ -77,6 +77,7 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
                 <Toggle
                   type="button"
                   variant="default"
+                  size="sm"
                   onPressedChange={(p) => {
                     if (isEditing) {
                       createDialog({
