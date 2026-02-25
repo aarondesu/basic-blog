@@ -1,3 +1,4 @@
+import { Loader2Icon } from "lucide-react";
 import React, { createContext, useCallback, useContext, useState } from "react";
 import {
   AlertDialog,
@@ -55,11 +56,6 @@ export function ConfirmationDialogProvider({
   );
 
   const onConfirm = useCallback(async () => {
-    // setLoading(true);
-
-    // setLoading(false);
-    // setOpen(false);
-
     setLoading(true);
     await props?.onConfirm();
     setLoading(false);
@@ -80,7 +76,8 @@ export function ConfirmationDialogProvider({
               <DrawerDescription>{props?.description}</DrawerDescription>
             </DrawerHeader>
             <DrawerFooter>
-              <Button type="button" disabled={isLoading}>
+              <Button type="button" disabled={isLoading} onClick={onConfirm}>
+                {isLoading && <Loader2Icon className="animate-spin" />}
                 Confirm
               </Button>
             </DrawerFooter>
@@ -97,8 +94,11 @@ export function ConfirmationDialogProvider({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-              <AlertDialogAction disabled={isLoading} onClick={onConfirm}>
-                Confirm
+              <AlertDialogAction asChild onClick={(e) => e.preventDefault()}>
+                <Button type="button" disabled={isLoading} onClick={onConfirm}>
+                  {isLoading && <Loader2Icon className="animate-spin" />}
+                  Confirm
+                </Button>
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
