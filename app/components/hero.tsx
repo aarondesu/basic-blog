@@ -13,7 +13,7 @@ export default function Hero({ title, description }: Args) {
       className={cn(
         `bg-[url('/assets/images/pexels-andreea-ch-371539-1166644.jpg')]`,
         "bg-cover bg-no-repeat bg-bottom-left md:bg-bottom",
-        "flex h-svh md:h-full",
+        "flex min-h-svh md:min-h-[calc(100vh-70px)] ",
       )}
     >
       <div className="space-y-6 w-100 m-auto items-center text-center">
@@ -21,7 +21,7 @@ export default function Hero({ title, description }: Args) {
           <p className="text-center text-4xl font-extrabold">{title}</p>
           <p className="text-center">{description}</p>
         </div>
-        <Button variant="outline" asChild>
+        <Button variant="secondary" className="p-7" asChild>
           <Link to="/blogs" reloadDocument>
             View Blogs
           </Link>
