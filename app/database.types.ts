@@ -87,7 +87,7 @@ export type Database = {
       comments: {
         Row: {
           blog_id: number;
-          body: string | null;
+          body: string;
           created_at: string;
           id: number;
           image_url: string | null;
@@ -96,7 +96,7 @@ export type Database = {
         };
         Insert: {
           blog_id: number;
-          body?: string | null;
+          body: string;
           created_at?: string;
           id?: number;
           image_url?: string | null;
@@ -105,7 +105,7 @@ export type Database = {
         };
         Update: {
           blog_id?: number;
-          body?: string | null;
+          body?: string;
           created_at?: string;
           id?: number;
           image_url?: string | null;
