@@ -1,8 +1,24 @@
+import { Link } from "react-router";
+import { FaGithub } from "react-icons/fa";
+
+import githubIcon from "~/assets/github.svg";
+
 export default function Footer() {
   return (
     <div className="bg-gray-800">
-      <div className="container mx-auto py-4 h-12.5 text-white text-center">
-        <p className="text-xs text-center">myBlog @ 2026</p>
+      <div className="flex container mx-auto py-4 text-white items-center">
+        <span className="flex-1 select-none">
+          <p className="text-xs">myBlog @ 2026</p>
+        </span>
+        <span>
+          <Link
+            to="https://github.com/aarondesu/basic-blog"
+            target="_blank"
+            className="size"
+          >
+            <FaGithub className="size-5" />
+          </Link>
+        </span>
       </div>
     </div>
   );
