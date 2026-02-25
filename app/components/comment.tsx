@@ -12,6 +12,8 @@ import { EditableTrigger } from "./ui/editable";
 import CommentInput from "./comment-input";
 import { Toggle } from "./ui/toggle";
 import { toast } from "sonner";
+import { cn } from "~/lib/utils";
+import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
 
 type Args = {
   id: number;
@@ -27,6 +29,7 @@ type Args = {
 
 export default function Comment(comment: React.PropsWithoutRef<Args>) {
   const [isEditing, setEditing] = useState<boolean>(false);
+  const { createDialog } = useConfirmationDialog();
   const { user_id } = useAppSelector((state) => state.auth);
   const fetcher = useFetcher();
 
@@ -58,7 +61,7 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
   }, []);
 
   return (
-    <div className="flex flex-col gap-3 px-3 py-6 not-first:border-t">
+    <div className="group flex flex-col gap-1.5 px-3 py-6 not-first:border-t hover:bg-accent/30">
       <div className="flex gap-2 items-center">
         <Avatar size="sm">
           <AvatarImage src={defaultAvatar} />
@@ -74,29 +77,50 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
             </span>
           </span>
           {comment.user_id === user_id && (
-            <ButtonGroup className="">
-              <Toggle
-                type="button"
-                variant="default"
-                onPressedChange={(p) => setEditing((editing) => (editing = p))}
-                pressed={isEditing}
-              >
-                <PencilIcon />
-              </Toggle>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={onDeleteClick}
-              >
-                <TrashIcon />
-              </Button>
-            </ButtonGroup>
+            <div
+              className={cn(
+                "justify-end flex",
+                "md:invisible md:group-hover:visible md:opacity-0 md:group-hover:opacity-100 md:ease-out md:duration-200", // Animation
+                isEditing && "flex opacity-100 visible", // Display if editing
+              )}
+            >
+              <ButtonGroup className="">
+                <Toggle
+                  type="button"
+                  variant="default"
+                  onPressedChange={(p) => {
+                    if (isEditing) {
+                      createDialog({
+                        title: "Discard Changes",
+                        description:
+                          "Are you sure you want to discard the chanages made?",
+                        onConfirm: () => {
+                          setEditing((editing) => (editing = p));
+                        },
+                      });
+                    } else {
+                      setEditing((editing) => (editing = p));
+                    }
+                  }}
+                  pressed={isEditing}
+                >
+                  <PencilIcon />
+                </Toggle>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={onDeleteClick}
+                >
+                  <TrashIcon />
+                </Button>
+              </ButtonGroup>
+            </div>
           )}
         </span>
       </div>
       {comment.image_url && !isEditing && (
-        <img src={comment.image_url} className="w-full object-cover md:w-64" />
+        <img src={comment.image_url} className="w-full object-cover md:w-lg" />
       )}
       <div className="bg-accent rounded-md p-4">
         {comment.user_id === user_id && isEditing ? (

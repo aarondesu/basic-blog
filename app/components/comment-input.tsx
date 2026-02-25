@@ -25,7 +25,7 @@ import {
   UploadIcon,
   XIcon,
 } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useUploadImage } from "~/hooks/use-uplaod-image";
 import {
@@ -35,6 +35,7 @@ import {
   InputGroupTextarea,
 } from "./ui/input-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
 
 type Args = {
   blog_id?: number;
@@ -66,7 +67,7 @@ export default function CommentInput({
     },
   });
 
-  const { body } = form.watch(); // Used for disabling submit button if comment body is missing
+  const { body, image_url } = form.watch(); // Used for disabling submit button if comment body is missing
 
   // Handle uploading of images
   const [files, setFiles] = useState<File[]>([]);
@@ -101,8 +102,6 @@ export default function CommentInput({
         },
       );
     } else if (mode === "edit") {
-      console.log(formData.entries());
-
       toast.promise(
         fetcher.submit(formData, {
           action: `/comments/update/${comment_id}`,
@@ -128,8 +127,18 @@ export default function CommentInput({
   }, []);
 
   // Handle image removal (only on edit)
+  const { createDialog } = useConfirmationDialog();
   const onRemoveImage = useCallback(() => {
-    form.setValue("image_url", undefined);
+    createDialog({
+      title: "Delete Image",
+      description:
+        "Are you sure you want to remove the image? Action is irreversible.",
+      onConfirm: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
+        form.setValue("image_url", undefined);
+      },
+    });
   }, []);
 
   return (
@@ -160,7 +169,7 @@ export default function CommentInput({
                       <InputGroupAddon align="block-start">
                         <img
                           src={form.getValues("image_url")}
-                          className="max-w-sm object-cover"
+                          className=" max-w-full md:max-w-xl object-cover"
                         />
                       </InputGroupAddon>
                     )}
@@ -199,6 +208,7 @@ export default function CommentInput({
                               type="button"
                               size="icon-sm"
                               onClick={onRemoveImage}
+                              disabled={!image_url}
                             >
                               <ImageOffIcon />
                             </InputGroupButton>
@@ -222,7 +232,7 @@ export default function CommentInput({
                         type="submit"
                         size="icon-sm"
                         variant="default"
-                        disabled={isLoading || isUploading}
+                        disabled={isLoading || isUploading || body.length === 0}
                       >
                         <SendHorizontalIcon />
                       </InputGroupButton>
