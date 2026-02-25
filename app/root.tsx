@@ -20,6 +20,7 @@ import { setAuthenticated, setUserInfo } from "./redux/reducers/auth";
 import { commitSession, getSession } from "./server.session";
 import React, { useEffect } from "react";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { ConfirmationDialogProvider } from "./context/use-confirmation-dialog";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -100,15 +101,17 @@ export default function App({ ...props }: Route.ComponentProps) {
   return (
     <Provider store={store}>
       <TooltipProvider>
-        <AuthenticationHandler {...props} />
-        <Toaster />
-        <div className="min-h-svh flex flex-col">
-          <Header />
-          <main className="flex-1 grid mb-6">
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
+        <ConfirmationDialogProvider>
+          <AuthenticationHandler {...props} />
+          <Toaster />
+          <div className="min-h-svh flex flex-col">
+            <Header />
+            <main className="flex-1 grid mb-6">
+              <Outlet />
+            </main>
+            <Footer />
+          </div>
+        </ConfirmationDialogProvider>
       </TooltipProvider>
     </Provider>
   );
