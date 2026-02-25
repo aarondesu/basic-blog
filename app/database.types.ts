@@ -87,26 +87,29 @@ export type Database = {
       comments: {
         Row: {
           blog_id: number;
-          body: string;
+          body: string | null;
           created_at: string;
           id: number;
           image_url: string | null;
+          updated_at: string;
           user_id: string;
         };
         Insert: {
           blog_id: number;
-          body: string;
+          body?: string | null;
           created_at?: string;
           id?: number;
           image_url?: string | null;
+          updated_at: string;
           user_id: string;
         };
         Update: {
           blog_id?: number;
-          body?: string;
+          body?: string | null;
           created_at?: string;
           id?: number;
           image_url?: string | null;
+          updated_at?: string;
           user_id?: string;
         };
         Relationships: [
@@ -260,10 +263,10 @@ export type Database = {
       blogs_view: {
         Row: {
           author: string | null;
+          body: string | null;
           created_at: string | null;
           id: number | null;
           image_url: string | null;
-          short_description: string | null;
           title: string | null;
           uid: string | null;
         };

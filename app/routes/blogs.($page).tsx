@@ -116,7 +116,7 @@ export default function Blogs({ loaderData }: Route.ComponentProps) {
                     </span>
                   </div>
                   <div>
-                    <p className="text-sm">{blog.short_description}...</p>
+                    <p className="text-sm">{blog.body}...</p>
                     <Link
                       to={`/blogs/view/${blog.id}`}
                       className="underline text-sm"
