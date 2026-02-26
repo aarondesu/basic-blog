@@ -67,19 +67,27 @@ function DeleteDialogForm({ id, title }: { id: number; title: string }) {
   );
 }
 
+export function ConfirmDeleteBlogDialogTrigger({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <DialogTrigger asChild>{children}</DialogTrigger>;
+}
+
 /**
  * Confirmation dialog
  * TODO: Add mobile dialog
  * @param param0
  * @returns
  */
-export default function ConfirmDeleteBlogDialog({ children, id, title }: Args) {
+export function ConfirmDeleteBlogDialog({ children, id, title }: Args) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState<boolean>(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children}
       <DialogContent className="data-[vaul-drawer-direction=bottom]:min-h-[50vh] data-[vaul-drawer-direction=top]:min-h-[50vh]">
         <DialogHeader>
           <DialogTitle>Delete blog</DialogTitle>

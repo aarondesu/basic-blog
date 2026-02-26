@@ -26,6 +26,7 @@ import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
 import { ButtonGroup } from "../ui/button-group";
+import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
 
 type Args = {
   mode: "create" | "edit";
@@ -48,6 +49,7 @@ type Args = {
  */
 export default function BlogForm({ mode, blog, error }: Args) {
   const { user_id } = useAppSelector((state) => state.auth);
+  const { createDialog } = useConfirmationDialog();
 
   const navigation = useNavigation();
   const form = useForm<z.infer<typeof blogSchema>>({
@@ -160,7 +162,20 @@ export default function BlogForm({ mode, blog, error }: Args) {
                       type="button"
                       variant="ghost"
                       size="icon"
-                      onClick={onDelete}
+                      onClick={() => {
+                        createDialog({
+                          title: "Remove Image",
+                          description:
+                            "Are you sure you want to remove the image? Action is irreversible.",
+                          onConfirm: async () => {
+                            await new Promise((resolve) =>
+                              setTimeout(resolve, 1000),
+                            );
+
+                            onDelete();
+                          },
+                        });
+                      }}
                     >
                       <XIcon />
                     </Button>
