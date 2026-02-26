@@ -29,7 +29,7 @@ import { ButtonGroup } from "../ui/button-group";
 
 type Args = {
   mode: "create" | "edit";
-  data?: {
+  blog?: {
     body: string;
     created_at: string;
     id: number;
@@ -46,17 +46,17 @@ type Args = {
  * @param param0
  * @returns
  */
-export default function BlogForm({ mode, data, error }: Args) {
+export default function BlogForm({ mode, blog, error }: Args) {
   const { user_id } = useAppSelector((state) => state.auth);
 
   const navigation = useNavigation();
   const form = useForm<z.infer<typeof blogSchema>>({
     resolver: zodResolver(blogSchema),
     defaultValues: {
-      title: data?.title ?? "",
-      body: data?.body ?? "",
-      image_url: data?.image_url ?? undefined,
-      user_id: data?.user_id,
+      title: blog?.title ?? "",
+      body: blog?.body ?? "",
+      image_url: blog?.image_url ?? undefined,
+      user_id: blog?.user_id,
     },
   });
   const { image_url } = form.watch();
@@ -71,7 +71,11 @@ export default function BlogForm({ mode, data, error }: Args) {
   const isLoading = navigation.state !== "idle";
 
   // Handle uploading of image
-  const { imageUrl, isUploading, onUpload } = useUploadImage();
+  const { isUploading, onUpload } = useUploadImage({
+    onUploadSuccess: (image_url) => {
+      form.setValue("image_url", image_url);
+    },
+  });
   const [files, setFiles] = useState<File[]>([]);
 
   const onFileReject = useCallback((file: File, message: string) => {
@@ -82,19 +86,18 @@ export default function BlogForm({ mode, data, error }: Args) {
 
   // Handle Submiting of form to action
   const submit = useSubmit();
-  const onSubmit = form.handleSubmit((inputData) => {
+  const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
-    if (imageUrl) inputData.image_url = imageUrl;
-    Object.entries(inputData).forEach(([Key, value]) => {
-      if (!value) return;
 
-      formData.append(Key, value);
+    Object.entries(data).forEach(([key, value]) => {
+      if (!value) return;
+      formData.append(key, String(value));
     });
 
-    if (mode === "edit" && data) formData.append("id", String(data.id));
+    if (mode === "edit" && blog) formData.append("id", String(blog.id));
 
     submit(formData, {
-      action: mode === "create" ? "/blogs/create" : `/blogs/edit/${data?.id}`,
+      action: mode === "create" ? "/blogs/create" : `/blogs/edit/${blog?.id}`,
       method: mode === "create" ? "POST" : "PUT",
     });
   });
@@ -136,16 +139,16 @@ export default function BlogForm({ mode, data, error }: Args) {
                 <div className="flex items-center justify-between">
                   <FieldLabel>Image</FieldLabel>
                 </div>
-                {image_url && data?.image_url && mode === "edit" ? (
+                {image_url && blog?.image_url && mode === "edit" ? (
                   <div className="flex p-2.5 border items-center rounded-md justify-between">
                     <div className="flex items-center gap-2">
                       <img
-                        src={data.image_url}
+                        src={blog.image_url}
                         className="w-25 h-25 object-cover"
                       />
                       <span className="flex flex-col gap-1">
                         <p className="font-bold text-sm">
-                          {getFilenameFromUrl(data.image_url)}
+                          {getFilenameFromUrl(blog.image_url)}
                         </p>
                         <p className="text-muted-foreground text-sm">
                           Current Image

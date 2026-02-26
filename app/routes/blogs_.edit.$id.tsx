@@ -92,7 +92,7 @@ export default function EditBlog({
       </div>
       {actionData?.error && <div>{actionData.error.message}</div>}
 
-      <BlogForm mode="edit" data={blog} error={actionData?.error} />
+      <BlogForm mode="edit" blog={blog} error={actionData?.error} />
     </div>
   );
 }

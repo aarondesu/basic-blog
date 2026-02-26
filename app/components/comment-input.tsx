@@ -71,12 +71,15 @@ export default function CommentInput({
 
   // Handle uploading of images
   const [files, setFiles] = useState<File[]>([]);
-  const { onUpload, isUploading, imageUrl } = useUploadImage();
+  const { onUpload, isUploading } = useUploadImage({
+    onUploadSuccess: (image_url) => {
+      form.setValue("image_url", image_url);
+    },
+  });
 
   // Handle submitting of form
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
-    data.image_url = imageUrl ?? data.image_url;
 
     Object.entries(data).forEach(([key, value]) => {
       if (!value) return;
@@ -233,7 +236,14 @@ export default function CommentInput({
                         type="submit"
                         size="icon-sm"
                         variant="default"
-                        disabled={isLoading || isUploading || body.length === 0}
+                        disabled={
+                          isLoading ||
+                          isUploading ||
+                          body.length === 0 ||
+                          (mode === "edit" &&
+                            body === comment?.body &&
+                            image_url === comment.image_url) // Check if changes were made
+                        }
                       >
                         <SendHorizontalIcon />
                       </InputGroupButton>

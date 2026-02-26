@@ -4,13 +4,16 @@ import type { FileUploadProps } from "~/components/ui/file-upload";
 import { getSupabaseBrowserClient } from "~/lib/supabase";
 import { randString } from "~/lib/utils";
 
-export function useUploadImage() {
+export function useUploadImage({
+  onUploadSuccess,
+}: {
+  onUploadSuccess: (url: string) => void;
+}) {
   const client = getSupabaseBrowserClient();
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [imageUrl, setImageUrl] = useState<string | undefined>();
 
   const onUpload: NonNullable<FileUploadProps["onUpload"]> = useCallback(
-    async (files, { onError, onProgress, onSuccess }) => {
+    async (files, { onError, onProgress }) => {
       try {
         setIsUploading(true);
 
@@ -35,10 +38,7 @@ export function useUploadImage() {
             .from("images")
             .getPublicUrl(bucketResult.data?.path ?? "");
 
-          // Set image_url
-          setImageUrl(data.publicUrl);
-
-          onSuccess(file);
+          onUploadSuccess(data.publicUrl);
         });
 
         toast.promise(Promise.all(uploadPromises), {
@@ -58,7 +58,6 @@ export function useUploadImage() {
 
   return {
     isUploading,
-    imageUrl,
     onUpload,
   };
 }
