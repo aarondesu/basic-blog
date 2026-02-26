@@ -132,7 +132,18 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem
                     onClick={() => {
-                      setEditing(!isEditing);
+                      if (isEditing) {
+                        createDialog({
+                          title: "Discard Changes",
+                          description:
+                            "Are you sure you want to discard the chanags made?",
+                          onConfirm: () => {
+                            setEditing((editing) => (editing = !isEditing));
+                          },
+                        });
+                      } else {
+                        setEditing((editing) => (editing = !isEditing));
+                      }
                     }}
                   >
                     <PencilIcon />
