@@ -25,8 +25,6 @@ export async function action({ request, params }: Route.ActionArgs) {
     })
     .eq("id", Number(params.id));
 
-  console.log(result);
-
   if (result.error) {
     session.flash("error", {
       code: result.error.code,

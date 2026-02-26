@@ -7,13 +7,21 @@ import { useFetcher } from "react-router";
 import { useCallback, useState } from "react";
 import { ButtonGroup } from "./ui/button-group";
 import { Button } from "./ui/button";
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { EllipsisIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { EditableTrigger } from "./ui/editable";
 import CommentInput from "./comment-input";
 import { Toggle } from "./ui/toggle";
 import { toast } from "sonner";
 import { cn } from "~/lib/utils";
 import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 type Args = {
   id: number;
@@ -50,7 +58,12 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
   }, []);
 
   return (
-    <div className="group flex flex-col gap-1.5 px-3 py-6 not-first:border-t hover:bg-accent/30">
+    <div
+      className={cn(
+        "group flex flex-col gap-1.5 px-3 py-6 not-first:border-t ",
+        // "hover:bg-accent/30"
+      )}
+    >
       <div className="flex gap-2 items-center">
         <Avatar size="sm">
           <AvatarImage src={defaultAvatar} />
@@ -65,7 +78,7 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
               on {dayjs(comment.created_at).format("MMMM DD, YYYY HH:mm:ss")}
             </span>
           </span>
-          {comment.user_id === user_id && (
+          {/* {comment.user_id === user_id && (
             <div
               className={cn(
                 "justify-end flex",
@@ -106,6 +119,32 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
                 </Button>
               </ButtonGroup>
             </div>
+          )} */}
+          {comment.user_id === user_id && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="ghost" size="icon">
+                  <EllipsisIcon />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setEditing(!isEditing);
+                    }}
+                  >
+                    <PencilIcon />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onDeleteClick}>
+                    <TrashIcon />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </span>
       </div>

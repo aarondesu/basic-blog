@@ -51,8 +51,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
   const user = (await client.auth.getUser()).data.user;
 
-  console.log(user);
-
   if (!user) {
     throw data(null, { status: 401, statusText: "Unauthorized" });
   }
