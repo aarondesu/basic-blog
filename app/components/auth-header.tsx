@@ -63,7 +63,7 @@ export default function AuthHeader() {
         </>
       ) : (
         <Button type="button" variant="secondary" asChild>
-          <Link to="/login" reloadDocument className="text-sm">
+          <Link to="/login" className="text-sm">
             Login
           </Link>
         </Button>
