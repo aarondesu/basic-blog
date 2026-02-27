@@ -227,6 +227,9 @@ export default function BlogForm({ mode, blog, error }: Args) {
                               variant="ghost"
                               size="icon"
                               className="size-7"
+                              onClick={() => {
+                                form.setValue("image_url", undefined);
+                              }}
                             >
                               <XIcon />
                             </Button>

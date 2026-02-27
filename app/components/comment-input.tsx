@@ -191,6 +191,9 @@ export default function CommentInput({
                                   type="button"
                                   size="icon-sm"
                                   className="absolute -top-1 -right-1 size-4 shrink-0 cursor cursor-pointer rounded-full "
+                                  onClick={() => {
+                                    form.setValue("image_url", undefined);
+                                  }}
                                 >
                                   <XIcon className="size-2.5" />
                                 </Button>
