@@ -73,7 +73,7 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "blogs_view";
-            referencedColumns: ["uid"];
+            referencedColumns: ["user_id"];
           },
           {
             foreignKeyName: "blogs_user_id_fkey";
@@ -91,6 +91,7 @@ export type Database = {
           created_at: string;
           id: number;
           image_url: string | null;
+          updated_at: string;
           user_id: string;
         };
         Insert: {
@@ -99,6 +100,7 @@ export type Database = {
           created_at?: string;
           id?: number;
           image_url?: string | null;
+          updated_at: string;
           user_id: string;
         };
         Update: {
@@ -107,6 +109,7 @@ export type Database = {
           created_at?: string;
           id?: number;
           image_url?: string | null;
+          updated_at?: string;
           user_id?: string;
         };
         Relationships: [
@@ -192,7 +195,7 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: true;
             referencedRelation: "blogs_view";
-            referencedColumns: ["uid"];
+            referencedColumns: ["user_id"];
           },
           {
             foreignKeyName: "profiles_user_id_fkey";
@@ -244,7 +247,7 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "blogs_view";
-            referencedColumns: ["uid"];
+            referencedColumns: ["user_id"];
           },
           {
             foreignKeyName: "user_roles_user_id_fkey";
@@ -260,12 +263,12 @@ export type Database = {
       blogs_view: {
         Row: {
           author: string | null;
+          body: string | null;
           created_at: string | null;
           id: number | null;
           image_url: string | null;
-          short_description: string | null;
           title: string | null;
-          uid: string | null;
+          user_id: string | null;
         };
         Relationships: [];
       };

@@ -17,17 +17,20 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from "../ui/file-upload";
-import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
+import { Loader2Icon, Trash2Icon, UploadIcon, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { useUploadImage } from "~/lib/utils";
+import { getFilenameFromUrl } from "~/lib/utils";
+import { useUploadImage } from "~/hooks/use-uplaod-image";
 import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
+import { ButtonGroup } from "../ui/button-group";
+import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
 
 type Args = {
   mode: "create" | "edit";
-  data?: {
+  blog?: {
     body: string;
     created_at: string;
     id: number;
@@ -44,19 +47,21 @@ type Args = {
  * @param param0
  * @returns
  */
-export default function BlogForm({ mode, data, error }: Args) {
+export default function BlogForm({ mode, blog, error }: Args) {
   const { user_id } = useAppSelector((state) => state.auth);
+  const { createDialog } = useConfirmationDialog();
 
   const navigation = useNavigation();
   const form = useForm<z.infer<typeof blogSchema>>({
     resolver: zodResolver(blogSchema),
     defaultValues: {
-      title: data?.title ?? "",
-      body: data?.body ?? "",
-      image_url: data?.image_url ?? undefined,
-      user_id: data?.user_id,
+      title: blog?.title ?? "",
+      body: blog?.body ?? "",
+      image_url: blog?.image_url ?? undefined,
+      user_id: blog?.user_id,
     },
   });
+  const { image_url } = form.watch();
 
   // Set user id if user ID is not null
   useEffect(() => {
@@ -68,7 +73,11 @@ export default function BlogForm({ mode, data, error }: Args) {
   const isLoading = navigation.state !== "idle";
 
   // Handle uploading of image
-  const { imageUrl, isUploading, onUpload } = useUploadImage();
+  const { isUploading, onUpload } = useUploadImage({
+    onUploadSuccess: (image_url) => {
+      form.setValue("image_url", image_url);
+    },
+  });
   const [files, setFiles] = useState<File[]>([]);
 
   const onFileReject = useCallback((file: File, message: string) => {
@@ -79,22 +88,28 @@ export default function BlogForm({ mode, data, error }: Args) {
 
   // Handle Submiting of form to action
   const submit = useSubmit();
-  const onSubmit = form.handleSubmit((inputData) => {
+  const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
-    if (imageUrl) inputData.image_url = imageUrl;
-    Object.entries(inputData).forEach(([Key, value]) => {
-      if (!value) return;
 
-      formData.append(Key, value);
+    Object.entries(data).forEach(([key, value]) => {
+      if (!value) return;
+      formData.append(key, String(value));
     });
 
-    if (mode === "edit" && data) formData.append("id", String(data.id));
+    if (mode === "edit" && blog) formData.append("id", String(blog.id));
 
     submit(formData, {
-      action: mode === "create" ? "/blogs/create" : `/blogs/edit/${data?.id}`,
+      action: mode === "create" ? "/blogs/create" : `/blogs/edit/${blog?.id}`,
       method: mode === "create" ? "POST" : "PUT",
     });
   });
+
+  // Handle deletion of image
+  const onDelete = useCallback(() => {
+    if (image_url) {
+      form.setValue("image_url", undefined);
+    }
+  }, [form, image_url]);
 
   return (
     <div className="">
@@ -123,61 +138,108 @@ export default function BlogForm({ mode, data, error }: Args) {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Image</FieldLabel>
-                <FileUpload
-                  accept="image/*"
-                  maxFiles={1}
-                  maxSize={10 * 1024 * 1024}
-                  onFileReject={onFileReject}
-                  value={files}
-                  onValueChange={setFiles}
-                  onUpload={onUpload}
-                  className=""
-                  disabled={isLoading || isUploading}
-                >
-                  {files.length === 0 && (
-                    <FileUploadDropzone>
-                      <div className="flex flex-col items-center gap-1 text-center">
-                        <div className="flex items-center justify-center rounded-full border p-2.5">
-                          <UploadIcon className="size-6 text-muted-foreground" />
+                <div className="flex items-center justify-between">
+                  <FieldLabel>Image</FieldLabel>
+                </div>
+                {image_url && blog?.image_url && mode === "edit" ? (
+                  <div className="flex p-2.5 border items-center rounded-md justify-between">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={blog.image_url}
+                        className="w-25 h-25 object-cover"
+                      />
+                      <span className="flex flex-col gap-1">
+                        <p className="font-bold text-sm">
+                          {getFilenameFromUrl(blog.image_url)}
+                        </p>
+                        <p className="text-muted-foreground text-sm">
+                          Current Image
+                        </p>
+                      </span>
+                    </div>
+                    <Button
+                      className=""
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        createDialog({
+                          title: "Remove Image",
+                          description:
+                            "Are you sure you want to remove the image? Action is irreversible.",
+                          onConfirm: async () => {
+                            await new Promise((resolve) =>
+                              setTimeout(resolve, 1000),
+                            );
+
+                            onDelete();
+                          },
+                        });
+                      }}
+                    >
+                      <XIcon />
+                    </Button>
+                  </div>
+                ) : (
+                  <FileUpload
+                    accept="image/*"
+                    maxFiles={1}
+                    maxSize={10 * 1024 * 1024}
+                    onFileReject={onFileReject}
+                    value={files}
+                    onValueChange={setFiles}
+                    onUpload={onUpload}
+                    className=""
+                    disabled={isLoading || isUploading}
+                  >
+                    {files.length === 0 && (
+                      <FileUploadDropzone>
+                        <div className="flex flex-col items-center gap-1 text-center">
+                          <div className="flex items-center justify-center rounded-full border p-2.5">
+                            <UploadIcon className="size-6 text-muted-foreground" />
+                          </div>
+                          <p className="font-medium text-sm">
+                            Drag & drop file here
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            Or click to browse (max 1 file)
+                          </p>
                         </div>
-                        <p className="font-medium text-sm">
-                          Drag & drop file here
-                        </p>
-                        <p className="text-muted-foreground text-xs">
-                          Or click to browse (max 1 file)
-                        </p>
-                      </div>
-                      <FileUploadTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mt-2 w-fit"
-                        >
-                          Browse files
-                        </Button>
-                      </FileUploadTrigger>
-                    </FileUploadDropzone>
-                  )}
-                  <FileUploadList>
-                    {files.map((file, index) => (
-                      <FileUploadItem key={index} value={file}>
-                        <FileUploadItemPreview />
-                        <FileUploadItemMetadata />
-                        <FileUploadItemProgress />
-                        <FileUploadItemDelete asChild>
+                        <FileUploadTrigger asChild>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7"
+                            variant="outline"
+                            size="sm"
+                            className="mt-2 w-fit"
                           >
-                            <XIcon />
+                            Browse files
                           </Button>
-                        </FileUploadItemDelete>
-                      </FileUploadItem>
-                    ))}
-                  </FileUploadList>
-                </FileUpload>
+                        </FileUploadTrigger>
+                      </FileUploadDropzone>
+                    )}
+                    <FileUploadList>
+                      {files.map((file, index) => (
+                        <FileUploadItem key={index} value={file}>
+                          <FileUploadItemPreview />
+                          <FileUploadItemMetadata />
+                          <FileUploadItemProgress />
+                          <FileUploadItemDelete asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                              onClick={() => {
+                                form.setValue("image_url", undefined);
+                              }}
+                            >
+                              <XIcon />
+                            </Button>
+                          </FileUploadItemDelete>
+                        </FileUploadItem>
+                      ))}
+                    </FileUploadList>
+                  </FileUpload>
+                )}
+
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}

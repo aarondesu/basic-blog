@@ -3,6 +3,7 @@
 import { Link } from "react-router";
 import Navigation from "./navigation";
 import {} from "~/database.types";
+import AuthHeader from "./auth-header";
 
 export default function Header() {
   return (
@@ -16,7 +17,11 @@ export default function Header() {
             </Link>
           </span>
         </div>
-        <Navigation />
+
+        <span className="flex flex-row md:flex-row-reverse gap-1 items-center ">
+          <AuthHeader />
+          <Navigation />
+        </span>
       </div>
     </div>
   );

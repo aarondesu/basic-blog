@@ -4,13 +4,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import defaultAvatar from "~/assets/user.png";
 import { useAppSelector } from "~/redux/hooks";
 import { useFetcher } from "react-router";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { ButtonGroup } from "./ui/button-group";
+import { Button } from "./ui/button";
+import { EllipsisIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { EditableTrigger } from "./ui/editable";
+import CommentInput from "./comment-input";
+import { Toggle } from "./ui/toggle";
+import { toast } from "sonner";
+import { cn } from "~/lib/utils";
+import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 type Args = {
   id: number;
+  blog_id: number;
   user_id: string;
   body: string;
-  image_url: string | null;
+  image_url: string | null | undefined;
   created_at: string;
   user: {
     username: string;
@@ -18,42 +36,150 @@ type Args = {
 };
 
 export default function Comment(comment: React.PropsWithoutRef<Args>) {
+  const [isEditing, setEditing] = useState<boolean>(false);
+  const { createDialog } = useConfirmationDialog();
   const { user_id } = useAppSelector((state) => state.auth);
   const fetcher = useFetcher();
 
   const onDeleteClick = useCallback(() => {
-    fetcher.submit(null, { action: `/comments/delete` });
+    createDialog({
+      title: "Delete Comment",
+      description:
+        "Are you sure you want to delete this comment? Action is irreversible",
+      onConfirm: async () => {
+        await fetcher.submit(null, {
+          action: `/comments/delete/${comment.id}`,
+          method: "DELETE",
+        });
+
+        toast.success("Successfully deleted comment!");
+      },
+    });
   }, []);
 
   return (
-    <div className="flex flex-col gap-3 px-3 py-6 not-first:border-t">
+    <div
+      className={cn(
+        "group flex flex-col gap-1.5 px-3 py-6 not-first:border-t ",
+        // "hover:bg-accent/30"
+      )}
+    >
       <div className="flex gap-2 items-center">
         <Avatar size="sm">
           <AvatarImage src={defaultAvatar} />
           <AvatarFallback>U</AvatarFallback>
         </Avatar>
-        <span className="flex gap-2.5 text-muted-foreground text-sm">
-          <span>
-            by <b>{comment.user.username}</b>
+        <span className="flex flex-1 items-center justify-between">
+          <span className="flex gap-2.5 text-muted-foreground text-sm">
+            <span>
+              by <b>{comment.user.username}</b>
+            </span>
+            <span>
+              on {dayjs(comment.created_at).format("MMMM DD, YYYY HH:mm:ss")}
+            </span>
           </span>
-          <span>
-            on {dayjs(comment.created_at).format("MMMM DD, YYYY HH:mm:ss")}
-          </span>
+          {/* {comment.user_id === user_id && (
+            <div
+              className={cn(
+                "justify-end flex",
+                !isEditing &&
+                  "md:invisible md:group-hover:visible md:opacity-0 md:group-hover:opacity-100 md:ease-in-out md:duration-200", // Animation
+              )}
+            >
+              <ButtonGroup className="">
+                <Toggle
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  onPressedChange={(p) => {
+                    if (isEditing) {
+                      createDialog({
+                        title: "Discard Changes",
+                        description:
+                          "Are you sure you want to discard the chanags made?",
+                        onConfirm: () => {
+                          setEditing((editing) => (editing = p));
+                        },
+                      });
+                    } else {
+                      setEditing((editing) => (editing = p));
+                    }
+                  }}
+                  pressed={isEditing}
+                >
+                  <PencilIcon />
+                </Toggle>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={onDeleteClick}
+                >
+                  <TrashIcon />
+                </Button>
+              </ButtonGroup>
+            </div>
+          )} */}
+          {comment.user_id === user_id && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="ghost" size="icon">
+                  <EllipsisIcon />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (isEditing) {
+                        createDialog({
+                          title: "Discard Changes",
+                          description:
+                            "Are you sure you want to discard the chanags made?",
+                          onConfirm: () => {
+                            setEditing((editing) => (editing = !isEditing));
+                          },
+                        });
+                      } else {
+                        setEditing((editing) => (editing = !isEditing));
+                      }
+                    }}
+                  >
+                    <PencilIcon />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onDeleteClick}>
+                    <TrashIcon />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </span>
-        {/* TODO: add delete and edit comment */}
-        {/* {user_id === comment.user_id && (
-          <div className="flex flex-1 justify-end">
-            <Button type="button" variant="outline" size="icon-xs">
-              <TrashIcon />
-            </Button>
-          </div>
-        )} */}
       </div>
-      {comment.image_url && (
-        <img src={comment.image_url} className="w-full object-cover md:w-64" />
+      {comment.image_url && !isEditing && (
+        <img src={comment.image_url} className="w-full object-cover md:w-lg" />
       )}
       <div className="bg-accent rounded-md p-4">
-        <p className="text-sm">{comment.body}</p>
+        {comment.user_id === user_id && isEditing ? (
+          <CommentInput
+            mode="edit"
+            comment_id={comment.id}
+            comment={{
+              blog_id: comment.blog_id,
+              body: comment.body,
+              image_url: comment.image_url ?? undefined,
+              user_id: comment.user_id,
+            }}
+            onSuccess={() => {
+              setEditing((editing) => (editing = false));
+            }}
+          />
+        ) : (
+          <p className="text-sm whitespace-pre-wrap">{comment.body}</p>
+        )}
       </div>
     </div>
   );

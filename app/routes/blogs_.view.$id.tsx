@@ -5,8 +5,11 @@ import dayjs from "dayjs";
 import { useAppSelector } from "~/redux/hooks";
 import { ButtonGroup } from "~/components/ui/button-group";
 import { Button } from "~/components/ui/button";
-import { PencilIcon, TrashIcon } from "lucide-react";
-import ConfirmDeleteBlogDialog from "~/components/confirm-delete-blog-dialog";
+import { MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
+import {
+  ConfirmDeleteBlogDialog,
+  ConfirmDeleteBlogDialogTrigger,
+} from "~/components/confirm-delete-blog-dialog";
 import CommentInput from "~/components/comment-input";
 
 import Comment from "~/components/comment";
@@ -16,6 +19,14 @@ import {
   PaginationItem,
   PaginationLink,
 } from "~/components/ui/pagination";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 export function HydrateFallback({}: Route.HydrateFallbackProps) {
   return <div className="container mx-auto">Test</div>;
@@ -81,14 +92,17 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
   return (
     <div>
       {blog?.image_url && blog.image_url !== "undefined" && (
-        <img src={blog.image_url} className="w-full object-top" />
+        <img
+          src={blog.image_url}
+          className="w-full h-[calc(100vh-70px)] max-h-360 object-cover object-center"
+        />
       )}
       <div className="container mx-auto space-y-6 my-4 px-4 md:px-0">
         <div className="space-y-4">
           <div className="">
-            <span className="flex flex-col md:flex-row gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
+            <span className="flex flex-row items-center gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
               <h1 className="text-3xl font-black">{blog?.title}</h1>
-              {isAuthenticated && blog?.user_id === auth_user_id && (
+              {/* {isAuthenticated && blog?.user_id === auth_user_id && (
                 <ButtonGroup className="">
                   <Button type="button" variant="outline" size="sm" asChild>
                     <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
@@ -106,6 +120,37 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                     </Button>
                   </ConfirmDeleteBlogDialog>
                 </ButtonGroup>
+              )} */}
+              {isAuthenticated && blog?.user_id === auth_user_id && (
+                <ConfirmDeleteBlogDialog
+                  id={Number(blog?.id)}
+                  title={blog?.title ?? ""}
+                >
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button type="button" variant="ghost" size="icon">
+                        <MoreHorizontalIcon />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
+                            <PencilIcon />
+                            Edit
+                          </Link>
+                        </DropdownMenuItem>
+                        <ConfirmDeleteBlogDialogTrigger>
+                          <DropdownMenuItem>
+                            <TrashIcon />
+                            Delete
+                          </DropdownMenuItem>
+                        </ConfirmDeleteBlogDialogTrigger>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </ConfirmDeleteBlogDialog>
               )}
             </span>
             <span className="flex gap-2">
