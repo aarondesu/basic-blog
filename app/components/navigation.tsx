@@ -62,7 +62,7 @@ export default function Navigation() {
     return (
       <Drawer open={open} onOpenChange={setOpen} direction="right">
         <DrawerTrigger asChild>
-          <Button variant="ghost" size="icon" className="mx-2">
+          <Button variant="ghost" size="icon-lg" className="mx-2">
             <MenuIcon />
           </Button>
         </DrawerTrigger>
@@ -76,7 +76,11 @@ export default function Navigation() {
               <ul className="flex flex-col gap-2">
                 {links.map((link, index) => (
                   <li key={index} className="flex">
-                    <Link to={link.url} className="py-2 px-4 flex-1">
+                    <Link
+                      to={link.url}
+                      className="py-2 px-4 flex-1"
+                      onClick={() => setOpen(false)}
+                    >
                       {link.label}
                     </Link>
                   </li>
