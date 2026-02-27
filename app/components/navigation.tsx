@@ -76,11 +76,7 @@ export default function Navigation() {
               <ul className="flex flex-col gap-2">
                 {links.map((link, index) => (
                   <li key={index} className="flex">
-                    <Link
-                      to={link.url}
-                      reloadDocument
-                      className="py-2 px-4 flex-1"
-                    >
+                    <Link to={link.url} className="py-2 px-4 flex-1">
                       {link.label}
                     </Link>
                   </li>
@@ -102,7 +98,6 @@ export default function Navigation() {
                   <Link
                     to={link.url}
                     prefetch={link.prefetch ? "intent" : "none"}
-                    reloadDocument
                   >
                     {link.label}
                   </Link>

@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigation } from "react-router";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export default function AuthHeader() {
@@ -53,7 +53,7 @@ export default function AuthHeader() {
               <DropdownMenuLabel>{username}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to="/logout" reloadDocument>
+                <Link to="/logout">
                   <LogOutIcon />
                   Logout
                 </Link>

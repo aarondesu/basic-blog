@@ -102,25 +102,6 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
           <div className="">
             <span className="flex flex-row items-center gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
               <h1 className="text-3xl font-black">{blog?.title}</h1>
-              {/* {isAuthenticated && blog?.user_id === auth_user_id && (
-                <ButtonGroup className="">
-                  <Button type="button" variant="outline" size="sm" asChild>
-                    <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
-                      <PencilIcon />
-                      Edit
-                    </Link>
-                  </Button>
-                  <ConfirmDeleteBlogDialog
-                    id={Number(blog?.id)}
-                    title={blog?.title ?? ""}
-                  >
-                    <Button type="button" variant="outline" size="sm">
-                      <TrashIcon />
-                      Delete
-                    </Button>
-                  </ConfirmDeleteBlogDialog>
-                </ButtonGroup>
-              )} */}
               {isAuthenticated && blog?.user_id === auth_user_id && (
                 <ConfirmDeleteBlogDialog
                   id={Number(blog?.id)}
@@ -136,7 +117,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                       <DropdownMenuGroup>
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                          <Link to={`/blogs/edit/${blog?.id}`} reloadDocument>
+                          <Link to={`/blogs/edit/${blog?.id}`}>
                             <PencilIcon />
                             Edit
                           </Link>

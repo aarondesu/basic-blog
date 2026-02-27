@@ -45,7 +45,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <div className="">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-extrabold">Latest Blogs</h2>
-            <Link to="/blogs" reloadDocument className="underline text-sm">
+            <Link to="/blogs" className="underline text-sm">
               View All
             </Link>
           </div>

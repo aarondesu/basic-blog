@@ -35,11 +35,7 @@ export default function BlogItem({ blog }: Args) {
           </div>
           <div>
             <p className="text-sm">{blog.body}...</p>
-            <Link
-              to={`/blogs/view/${blog.id}`}
-              className="underline text-sm"
-              reloadDocument
-            >
+            <Link to={`/blogs/view/${blog.id}`} className="underline text-sm">
               Read More
             </Link>
           </div>
