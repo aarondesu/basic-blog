@@ -15,7 +15,7 @@ export default function NavigationProgress() {
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
-    if (navigation.state === "loading") {
+    if (navigation.state !== "idle") {
       setVisible(true);
       setProgress(15);
 
