@@ -1,6 +1,6 @@
 import { getSupabaseServerClient } from "~/lib/supabase";
 import type { Route } from "./+types/blogs.($page)";
-import { data, Link } from "react-router";
+import { Await, data, Link } from "react-router";
 import dayjs from "dayjs";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
@@ -13,6 +13,7 @@ import { Button } from "~/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { useAppSelector } from "~/redux/hooks";
 import BlogItem from "~/components/blog-item";
+import React from "react";
 
 export async function clientLoader({
   request,
@@ -34,6 +35,8 @@ export async function clientLoader({
   if (result.data === null || result.error || Number.isNaN(current_page)) {
     throw data(null, { status: 404 });
   }
+
+  // await new Promise((resolve) => setTimeout(resolve, 10000));
 
   return data({
     current_page: current_page,
@@ -97,7 +100,12 @@ export default function Blogs({ loaderData }: Route.ComponentProps) {
       </div>
       <div className="space-y-4">
         {blogs && blogs.length === 0 && <h3>No blogs to display</h3>}
-        {blogs && blogs.map((blog) => <BlogItem blog={blog} key={blog.id} />)}
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <Await resolve={blogs} key={"tset"}>
+            {blogs &&
+              blogs.map((blog) => <BlogItem blog={blog} key={blog.id} />)}
+          </Await>
+        </React.Suspense>
       </div>
       <Pagination>
         <PaginationContent>

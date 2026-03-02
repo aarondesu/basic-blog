@@ -3,6 +3,8 @@ import type { Route } from "./+types/blogs_.edit.$id";
 import { data, redirect, type MiddlewareFunction } from "react-router";
 import BlogForm from "~/components/forms/blog.form";
 import { commitSession, getSession } from "~/server.session";
+import dayjs from "dayjs";
+
 export async function action({ request }: Route.ActionArgs) {
   // Get needed variables
   const formData = await request.formData();
@@ -16,6 +18,7 @@ export async function action({ request }: Route.ActionArgs) {
       title: formData.get("title") as string,
       image_url: (formData.get("image_url") as string) ?? null,
       body: formData.get("body") as string,
+      udpated_at: dayjs().toDate().toISOString(),
     })
     .eq("id", Number(formData.get("id")));
 
