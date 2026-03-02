@@ -16,31 +16,33 @@ interface Args {
 
 export default function BlogItem({ blog }: Args) {
   return (
-    <div className="border rounded-md p-4">
-      <div className="flex flex-col md:flex-row gap-4">
-        {blog.image_url && blog.image_url !== "undefined" && (
-          <img src={blog.image_url} className="max-h-50" />
-        )}
-        <div className="flex-1">
-          <div className="mb-4">
-            <h1 className="font-bold text-2xl">{blog.title}</h1>
-            <span className="flex items-start gap-2">
-              <p className="text-muted-foreground text-xs">
-                {dayjs(blog.created_at).format("MMMM DD, YYYY H:MM:s")}
-              </p>
-              <p className="text-muted-foreground text-xs font-medium">
-                by {blog.author}
-              </p>
-            </span>
-          </div>
-          <div>
-            <p className="text-sm">{blog.body}...</p>
-            <Link to={`/blogs/view/${blog.id}`} className="underline text-sm">
-              Read More
-            </Link>
+    <div className="border rounded-md hover:bg-accent">
+      <Link to={`/blogs/view/${blog.id}`} className="text-sm">
+        <div className="flex flex-col md:flex-row gap-4 p-4 ">
+          {blog.image_url && blog.image_url !== "undefined" && (
+            <img src={blog.image_url} className="max-h-50" />
+          )}
+          <div className="flex-1">
+            <div className="mb-4">
+              <div className="font-bold text-2xl line-clamp-1">
+                {blog.title}
+              </div>
+              <span className="flex items-start gap-2">
+                <p className="text-muted-foreground text-xs">
+                  {dayjs(blog.created_at).format("MMMM DD, YYYY H:MM:s")}
+                </p>
+                <p className="text-muted-foreground text-xs font-medium">
+                  by {blog.author}
+                </p>
+              </span>
+            </div>
+            <div className="space-y-4">
+              <p className="text-sm">{blog.body}...</p>
+              <p className="underline">Read More</p>
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }
