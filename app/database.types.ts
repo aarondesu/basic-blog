@@ -100,7 +100,7 @@ export type Database = {
           created_at?: string;
           id?: number;
           image_url?: string | null;
-          updated_at: string;
+          updated_at?: string;
           user_id: string;
         };
         Update: {
@@ -125,6 +125,13 @@ export type Database = {
             columns: ["blog_id"];
             isOneToOne: false;
             referencedRelation: "blogs_view";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_blog_id_fkey";
+            columns: ["blog_id"];
+            isOneToOne: false;
+            referencedRelation: "random_blogs";
             referencedColumns: ["id"];
           },
           {
@@ -268,7 +275,18 @@ export type Database = {
           id: number | null;
           image_url: string | null;
           title: string | null;
+          udpated_at: string | null;
           user_id: string | null;
+        };
+        Relationships: [];
+      };
+      random_blogs: {
+        Row: {
+          author: string | null;
+          body: string | null;
+          id: number | null;
+          image_url: string | null;
+          title: string | null;
         };
         Relationships: [];
       };
@@ -280,6 +298,7 @@ export type Database = {
           id: number | null;
           image_url: string | null;
           title: string | null;
+          udpated_at: string | null;
           user_id: string | null;
         };
         Relationships: [];
