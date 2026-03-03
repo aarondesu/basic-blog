@@ -4,7 +4,7 @@ import { FaGithub } from "react-icons/fa";
 export default function Footer() {
   return (
     <div className="bg-gray-800">
-      <div className="flex container mx-auto py-4 text-white items-center">
+      <div className="flex container mx-auto py-4 px-4 md:px-0 text-white items-center">
         <span className="flex-1 select-none">
           <p className="text-xs">myBlog @ 2026</p>
         </span>
