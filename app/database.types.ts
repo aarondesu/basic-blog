@@ -46,7 +46,7 @@ export type Database = {
           id: number;
           image_url: string | null;
           title: string;
-          udpated_at: string;
+          updated_at: string | null;
           user_id: string;
         };
         Insert: {
@@ -55,7 +55,7 @@ export type Database = {
           id?: number;
           image_url?: string | null;
           title: string;
-          udpated_at?: string;
+          updated_at?: string | null;
           user_id: string;
         };
         Update: {
@@ -64,7 +64,7 @@ export type Database = {
           id?: number;
           image_url?: string | null;
           title?: string;
-          udpated_at?: string;
+          updated_at?: string | null;
           user_id?: string;
         };
         Relationships: [
@@ -275,7 +275,7 @@ export type Database = {
           id: number | null;
           image_url: string | null;
           title: string | null;
-          udpated_at: string | null;
+          updated_at: string | null;
           user_id: string | null;
         };
         Relationships: [];
@@ -298,7 +298,7 @@ export type Database = {
           id: number | null;
           image_url: string | null;
           title: string | null;
-          udpated_at: string | null;
+          updated_at: string | null;
           user_id: string | null;
         };
         Relationships: [];
