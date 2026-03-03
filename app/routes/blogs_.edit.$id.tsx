@@ -4,6 +4,7 @@ import { data, redirect, type MiddlewareFunction } from "react-router";
 import BlogForm from "~/components/forms/blog.form";
 import { commitSession, getSession } from "~/server.session";
 import dayjs from "dayjs";
+import tz from "dayjs/plugin/timezone";
 
 export async function action({ request }: Route.ActionArgs) {
   // Get needed variables
@@ -18,7 +19,7 @@ export async function action({ request }: Route.ActionArgs) {
       title: formData.get("title") as string,
       image_url: (formData.get("image_url") as string) ?? null,
       body: formData.get("body") as string,
-      udpated_at: dayjs().toDate().toISOString(),
+      updated_at: new Date(Date.now()).toISOString(),
     })
     .eq("id", Number(formData.get("id")));
 

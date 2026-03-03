@@ -41,7 +41,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         title="Welcome to myBlog"
         description="What is Lorem Ipsum? Lorem Ipsum is simply dummy text of the printing and typesetting industry."
       />
-      <div className="container mx-auto my-10">
+      <div className="container mx-auto my-10 px-4 md:px-0">
         <div className="">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-extrabold">Latest Blogs</h2>

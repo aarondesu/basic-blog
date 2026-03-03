@@ -28,11 +28,12 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
-import defaultAvatar from "~/assets/user.png";
-
-export function HydrateFallback({}: Route.HydrateFallbackProps) {
-  return <div className="container mx-auto">Test</div>;
-}
+import { useIsMobile } from "~/hooks/use-mobile";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
@@ -93,6 +94,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
     user_id: auth_user_id,
     isAuthenticated,
   } = useAppSelector((state) => state.auth);
+  const isMobile = useIsMobile();
 
   return (
     <div>
@@ -153,17 +155,31 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                   </span>
                   <span className="flex gap-2">
                     <p className="font-medium text-muted-foreground text-sm">
-                      {dayjs(blog?.created_at).format("MMM DD, YYYY HH:mm:ss")}
+                      {isMobile ? (
+                        <Tooltip>
+                          <TooltipTrigger className="underline">
+                            {dayjs(blog?.created_at).format("MMM DD, YYYY")}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {dayjs(blog?.created_at).format(
+                              "MMM DD, YYYY HH:mm:ss",
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        dayjs(blog?.created_at).format("MMM DD, YYYY HH:mm:ss")
+                      )}
                     </p>
                     <span className="flex gap-4">
                       <p className="text-sm text-muted-foreground font-bold">
                         by {blog?.author}
                       </p>
-                      {blog.udpated_at &&
-                        dayjs(blog.created_at) !== dayjs(blog.udpated_at) && (
+                      {blog.updated_at &&
+                        dayjs(blog.created_at).diff(dayjs(blog.updated_at)) !==
+                          0 && (
                           <p className="font-medium text-muted-foreground text-sm">
                             edited on{" "}
-                            {dayjs(blog.udpated_at).format(
+                            {dayjs(blog.updated_at).format(
                               "MMM DD, YYYY HH:mm:ss",
                             )}
                           </p>
@@ -212,11 +228,11 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
               </Pagination>
             </div>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-4 border-t md:border-none pt-6 md:pt-0">
             <h4 className="font-bold text-lg">Other Blogs</h4>
             <div className="flex flex-col gap-4">
               {suggested?.map((blog) => (
-                <Link to={`/blogs/view/${blog.id}`}>
+                <Link to={`/blogs/view/${blog.id}`} key={blog.id}>
                   <div
                     key={blog.id}
                     className="flex flex-col gap-2 border p-4 hover:bg-accent min-w-60 w-full md:max-w-60"

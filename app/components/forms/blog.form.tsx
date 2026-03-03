@@ -36,7 +36,7 @@ type Args = {
     id: number;
     image_url: string | null;
     title: string;
-    udpated_at: string;
+    updated_at: string | null;
     user_id: string;
   };
   error?: PostgrestError;
