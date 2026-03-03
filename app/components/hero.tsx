@@ -22,9 +22,7 @@ export default function Hero({ title, description }: Args) {
           <p className="text-center">{description}</p>
         </div>
         <Button variant="secondary" className="p-7" asChild>
-          <Link to="/blogs" reloadDocument>
-            View Blogs
-          </Link>
+          <Link to="/blogs">View Blogs</Link>
         </Button>
       </div>
     </div>

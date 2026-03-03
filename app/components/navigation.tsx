@@ -62,7 +62,7 @@ export default function Navigation() {
     return (
       <Drawer open={open} onOpenChange={setOpen} direction="right">
         <DrawerTrigger asChild>
-          <Button variant="ghost" size="icon" className="mx-2">
+          <Button variant="ghost" size="icon-lg" className="mx-2">
             <MenuIcon />
           </Button>
         </DrawerTrigger>
@@ -78,8 +78,8 @@ export default function Navigation() {
                   <li key={index} className="flex">
                     <Link
                       to={link.url}
-                      reloadDocument
                       className="py-2 px-4 flex-1"
+                      onClick={() => setOpen(false)}
                     >
                       {link.label}
                     </Link>
@@ -102,7 +102,6 @@ export default function Navigation() {
                   <Link
                     to={link.url}
                     prefetch={link.prefetch ? "intent" : "none"}
-                    reloadDocument
                   >
                     {link.label}
                   </Link>

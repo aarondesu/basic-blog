@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   data,
+  useNavigation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -21,6 +22,7 @@ import { commitSession, getSession } from "./server.session";
 import React, { useEffect } from "react";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ConfirmationDialogProvider } from "./context/use-confirmation-dialog";
+import NavigationProgress from "~/components/navigation-progress";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -104,6 +106,7 @@ export default function App({ ...props }: Route.ComponentProps) {
         <ConfirmationDialogProvider>
           <AuthenticationHandler {...props} />
           <Toaster />
+          <NavigationProgress />
           <div className="min-h-svh flex flex-col">
             <Header />
             <main className="flex-1 grid mb-6">

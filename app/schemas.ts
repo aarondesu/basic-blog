@@ -33,7 +33,7 @@ export const registerUserSchema = z
 export const blogSchema = z.object({
   id: z.number().optional(),
   user_id: z.string(),
-  title: z.string().min(12, "Title is too short — use at least 4 characters."),
+  title: z.string().min(4, "Title is too short — use at least 4 characters."),
   image_url: z.string().optional(),
   body: z
     .string()
