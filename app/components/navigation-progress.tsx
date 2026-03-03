@@ -43,7 +43,7 @@ export default function NavigationProgress() {
       value={progress}
       data-visible={visible}
       className={cn(
-        "absolute top-0 left-0",
+        "fixed top-0 left-0",
         "invisible data-[visible=true]:visible opacity-0 data-[visible=true]:opacity-100 ease-in-out transition-opacity duration-500",
       )}
     />
