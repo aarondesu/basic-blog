@@ -2,6 +2,8 @@ import { Mark, PureEditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu, FloatingMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
+import Image from "@tiptap/extension-image";
+import Youtube from "@tiptap/extension-youtube";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
 import { ButtonGroup } from "../ui/button-group";
 import { Button } from "../ui/button";
@@ -20,14 +22,14 @@ type Args = ComponentProps<"textarea"> & {
  * @param param0
  * @returns
  */
-export default function BlogEditor({ onChange, value }: Args) {
+export default function BlogEditor({ onChange, value, disabled, name }: Args) {
   // Used to convert string to markdown text for editor when editing a blog, and also to convert editor content to markdown string when creating/updating a blog
   const manager = new MarkdownManager({
-    extensions: [StarterKit, Markdown, TextAlign],
+    extensions: [StarterKit, Markdown, TextAlign, Image, Youtube],
   });
 
   const editor = useEditor({
-    extensions: [StarterKit, Markdown, TextAlign],
+    extensions: [StarterKit, Markdown, TextAlign, Image, Youtube],
     immediatelyRender: false,
     editorProps: {
       attributes: {
@@ -40,6 +42,8 @@ export default function BlogEditor({ onChange, value }: Args) {
     },
   });
 
+  if (!editor) return null;
+
   return (
     <>
       <div
@@ -51,7 +55,12 @@ export default function BlogEditor({ onChange, value }: Args) {
         <div className="border-b p-2">
           <BlogEditorToolbar editor={editor} />
         </div>
-        <PureEditorContent editor={editor} className="p-4" />
+        <PureEditorContent
+          editor={editor}
+          className="p-4"
+          disabled={disabled}
+          name={name}
+        />
       </div>
       {editor && (
         <FloatingMenu editor={editor}>

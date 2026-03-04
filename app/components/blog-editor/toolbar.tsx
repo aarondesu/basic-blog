@@ -6,13 +6,7 @@ import { Toggle } from "../ui/toggle";
 import { editorStateSelector } from "./state";
 import { allActions } from "./actions";
 
-export default function BlogEditorToolbar({
-  editor,
-}: {
-  editor: Editor | null;
-}) {
-  if (!editor) return null;
-
+export default function BlogEditorToolbar({ editor }: { editor: Editor }) {
   const editorState = useEditorState({
     editor: editor,
     selector: editorStateSelector,
