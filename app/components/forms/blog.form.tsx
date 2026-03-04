@@ -5,7 +5,6 @@ import { useNavigation, useSubmit } from "react-router";
 import { useAppSelector } from "~/redux/hooks";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
 import {
   FileUpload,
   FileUploadDropzone,
@@ -25,8 +24,8 @@ import { useUploadImage } from "~/hooks/use-uplaod-image";
 import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
-import { ButtonGroup } from "../ui/button-group";
 import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
+import BlogEditor from "../blog-editor";
 
 type Args = {
   mode: "create" | "edit";
@@ -251,11 +250,7 @@ export default function BlogForm({ mode, blog, error }: Args) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="col-span-2">
                 <FieldLabel>Body</FieldLabel>
-                <Textarea
-                  {...field}
-                  className="h-87.5"
-                  disabled={isLoading || isUploading}
-                />
+                <BlogEditor {...field} />
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}

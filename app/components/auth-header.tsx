@@ -24,7 +24,7 @@ export default function AuthHeader() {
         <>
           <Tooltip defaultOpen>
             <TooltipTrigger>
-              <Link to="/blogs/create" reloadDocument>
+              <Link to="/blogs/create">
                 <PlusIcon size="20" />
               </Link>
             </TooltipTrigger>

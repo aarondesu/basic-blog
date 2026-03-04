@@ -33,7 +33,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   session.flash("message", "Successfully updated blog!");
 
-  return redirect("/blogs", {
+  return redirect(`/blogs/view/${formData.get("id")}`, {
     headers: {
       "Set-Cookie": await commitSession(session),
     },
