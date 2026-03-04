@@ -271,6 +271,7 @@ export type Database = {
         Row: {
           author: string | null;
           body: string | null;
+          comments: number | null;
           created_at: string | null;
           id: number | null;
           image_url: string | null;
