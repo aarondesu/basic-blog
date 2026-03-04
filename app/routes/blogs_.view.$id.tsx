@@ -34,6 +34,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import MarkdownRenderer from "~/components/markdown-renderer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
@@ -187,10 +188,13 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                     </span>
                   </span>
                 </div>
-                <div className="">
+                {/* <div className="">
                   <p className="whitespace-pre-wrap text-justify">
                     {blog?.body}
                   </p>
+                </div> */}
+                <div className="">
+                  <MarkdownRenderer content={blog.body ?? ""} />
                 </div>
               </div>
             </div>
