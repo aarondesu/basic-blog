@@ -3,8 +3,6 @@ import type { Route } from "./+types/blogs_.edit.$id";
 import { data, redirect, type MiddlewareFunction } from "react-router";
 import BlogForm from "~/components/forms/blog.form";
 import { commitSession, getSession } from "~/server.session";
-import dayjs from "dayjs";
-import tz from "dayjs/plugin/timezone";
 
 export async function action({ request }: Route.ActionArgs) {
   // Get needed variables
@@ -20,6 +18,7 @@ export async function action({ request }: Route.ActionArgs) {
       image_url: (formData.get("image_url") as string) ?? null,
       body: formData.get("body") as string,
       updated_at: new Date(Date.now()).toISOString(),
+      short_description: formData.get("short_description") as string,
     })
     .eq("id", Number(formData.get("id")));
 
@@ -33,7 +32,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   session.flash("message", "Successfully updated blog!");
 
-  return redirect("/blogs", {
+  return redirect(`/blogs/view/${formData.get("id")}`, {
     headers: {
       "Set-Cookie": await commitSession(session),
     },

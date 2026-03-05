@@ -45,6 +45,7 @@ export type Database = {
           created_at: string;
           id: number;
           image_url: string | null;
+          short_description: string;
           title: string;
           updated_at: string | null;
           user_id: string;
@@ -54,6 +55,7 @@ export type Database = {
           created_at?: string;
           id?: number;
           image_url?: string | null;
+          short_description: string;
           title: string;
           updated_at?: string | null;
           user_id: string;
@@ -63,6 +65,7 @@ export type Database = {
           created_at?: string;
           id?: number;
           image_url?: string | null;
+          short_description?: string;
           title?: string;
           updated_at?: string | null;
           user_id?: string;
@@ -270,10 +273,11 @@ export type Database = {
       blogs_view: {
         Row: {
           author: string | null;
-          body: string | null;
+          comments: number | null;
           created_at: string | null;
           id: number | null;
           image_url: string | null;
+          short_description: string | null;
           title: string | null;
           updated_at: string | null;
           user_id: string | null;

@@ -5,7 +5,6 @@ import { useNavigation, useSubmit } from "react-router";
 import { useAppSelector } from "~/redux/hooks";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
 import {
   FileUpload,
   FileUploadDropzone,
@@ -25,8 +24,12 @@ import { useUploadImage } from "~/hooks/use-uplaod-image";
 import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
-import { ButtonGroup } from "../ui/button-group";
 import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
+import BlogEditor from "../blog-editor";
+import { generateText } from "@tiptap/core";
+import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import { extenstions } from "../blog-editor/extensions";
 
 type Args = {
   mode: "create" | "edit";
@@ -91,6 +94,11 @@ export default function BlogForm({ mode, blog, error }: Args) {
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
 
+    // Generate short description from body
+    formData.append(
+      "short_description",
+      generateText(JSON.parse(data.body), extenstions).slice(0, 300) + "...",
+    );
     Object.entries(data).forEach(([key, value]) => {
       if (!value) return;
       formData.append(key, String(value));
@@ -141,7 +149,10 @@ export default function BlogForm({ mode, blog, error }: Args) {
                 <div className="flex items-center justify-between">
                   <FieldLabel>Image</FieldLabel>
                 </div>
-                {image_url && blog?.image_url && mode === "edit" ? (
+                {mode === "edit" &&
+                image_url &&
+                blog?.image_url &&
+                blog.image_url === image_url ? (
                   <div className="flex p-2.5 border items-center rounded-md justify-between">
                     <div className="flex items-center gap-2">
                       <img
@@ -219,9 +230,8 @@ export default function BlogForm({ mode, blog, error }: Args) {
                     <FileUploadList>
                       {files.map((file, index) => (
                         <FileUploadItem key={index} value={file}>
-                          <FileUploadItemPreview />
+                          <FileUploadItemPreview className="size-25" />
                           <FileUploadItemMetadata />
-                          <FileUploadItemProgress />
                           <FileUploadItemDelete asChild>
                             <Button
                               variant="ghost"
@@ -251,11 +261,7 @@ export default function BlogForm({ mode, blog, error }: Args) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="col-span-2">
                 <FieldLabel>Body</FieldLabel>
-                <Textarea
-                  {...field}
-                  className="h-87.5"
-                  disabled={isLoading || isUploading}
-                />
+                <BlogEditor {...field} />
                 {fieldState.error && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}

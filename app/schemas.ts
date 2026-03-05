@@ -41,6 +41,7 @@ export const blogSchema = z.object({
       300,
       "Add more details to your post. The body needs at least 300 characters",
     ),
+  short_description: z.string().optional(),
   createdAt: z.date().optional(),
 });
 

@@ -1,20 +1,24 @@
 import dayjs from "dayjs";
+import { MessageCircleIcon } from "lucide-react";
 import { Link } from "react-router";
-import type { BlogData } from "~/types";
 
 interface Args {
   blog: {
     author: string | null;
-    body: string | null;
+    comments: number | null;
     created_at: string | null;
     id: number | null;
     image_url: string | null;
+    short_description: string | null;
     title: string | null;
+    updated_at: string | null;
     user_id: string | null;
   };
 }
 
 export default function BlogItem({ blog }: Args) {
+  const generateText = blog.short_description ?? "";
+
   return (
     <div className="border rounded-md hover:bg-accent">
       <Link to={`/blogs/view/${blog.id}`} className="text-sm">
@@ -24,8 +28,13 @@ export default function BlogItem({ blog }: Args) {
           )}
           <div className="flex-1">
             <div className="mb-4">
-              <div className="font-bold text-2xl line-clamp-1">
-                {blog.title}
+              <div className="flex items-start justify-between">
+                <h3 className="font-bold text-2xl line-clamp-1">
+                  {blog.title}
+                </h3>
+                <span className="flex items-center gap-1 text-muted-foreground text-xs font-medium">
+                  <MessageCircleIcon className="size-3.5" /> {blog.comments}
+                </span>
               </div>
               <span className="flex items-start gap-2">
                 <p className="text-muted-foreground text-xs">
@@ -37,7 +46,7 @@ export default function BlogItem({ blog }: Args) {
               </span>
             </div>
             <div className="space-y-4">
-              <p className="text-sm">{blog.body}...</p>
+              <p className="text-sm">{generateText}</p>
               <p className="underline">Read More</p>
             </div>
           </div>

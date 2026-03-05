@@ -34,6 +34,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import MarkdownRenderer from "~/components/markdown-renderer";
+import removeMarkdown from "remove-markdown";
+import ContentRenderer from "~/components/content-renderer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
@@ -78,11 +81,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export function meta({ loaderData }: Route.MetaArgs) {
   const { blog } = loaderData;
 
+  if (!blog || !blog.body || !blog.title) return null;
+
   return [
     { title: `myBlog | ${blog?.title ?? "Loading..."}` },
     {
       name: "description",
-      content: blog?.body?.substring(0, 500),
+      content: removeMarkdown(blog.body.substring(0, 500)),
     },
   ];
 }
@@ -118,8 +123,8 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
           <div className="space-y-6 flex-1">
             <div className="">
               <div className="space-y-4 flex-1">
-                <div className="">
-                  <span className="flex flex-row items-center gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
+                <div className="grid gap-1.5">
+                  <div className="flex flex-row items-center gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
                     <h1 className="text-3xl font-black">{blog?.title}</h1>
                     {isAuthenticated && blog?.user_id === auth_user_id && (
                       <ConfirmDeleteBlogDialog
@@ -152,8 +157,8 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                         </DropdownMenu>
                       </ConfirmDeleteBlogDialog>
                     )}
-                  </span>
-                  <span className="flex gap-2">
+                  </div>
+                  <div className="flex gap-2">
                     <p className="font-medium text-muted-foreground text-sm">
                       {isMobile ? (
                         <Tooltip>
@@ -185,12 +190,11 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                           </p>
                         )}
                     </span>
-                  </span>
+                  </div>
                 </div>
                 <div className="">
-                  <p className="whitespace-pre-wrap text-justify">
-                    {blog?.body}
-                  </p>
+                  {/* <MarkdownRenderer content={blog.body ?? ""} /> */}
+                  <ContentRenderer content={blog.body ?? ""} />
                 </div>
               </div>
             </div>
@@ -228,7 +232,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
               </Pagination>
             </div>
           </div>
-          <div className="space-y-4 border-t md:border-none pt-6 md:pt-0">
+          {/* <div className="space-y-4 border-t md:border-none pt-6 md:pt-0">
             <h4 className="font-bold text-lg">Other Blogs</h4>
             <div className="flex flex-col gap-4">
               {suggested?.map((blog) => (
@@ -257,7 +261,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                 </Link>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
