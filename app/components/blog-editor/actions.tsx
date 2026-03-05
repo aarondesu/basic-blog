@@ -35,18 +35,22 @@ export const textFormatActions: ToolbarButton[] = [
   {
     icon: BoldIcon,
     onClick: (editor) => editor.chain().focus().toggleBold().run(),
+    isActive: (state) => state.isBold,
   },
   {
     icon: ItalicIcon,
     onClick: (editor) => editor.chain().focus().toggleItalic().run(),
+    isActive: (state) => state.isItalic,
   },
   {
     icon: UnderlineIcon,
     onClick: (editor) => editor.chain().focus().toggleUnderline().run(),
+    isActive: (state) => state.isUnderline,
   },
   {
     icon: StrikethroughIcon,
     onClick: (editor) => editor.chain().focus().toggleStrike().run(),
+    isActive: (state) => state.isStrikethrough,
   },
 ];
 
