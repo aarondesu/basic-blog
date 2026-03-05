@@ -17,7 +17,6 @@ import {
   UnderlineIcon,
   YoutubeIcon,
 } from "lucide-react";
-import { useUploadImage } from "~/hooks/use-uplaod-image";
 
 /**
  * Toolbar for the blog editor, with buttons for text formatting, headings, lists, etc. It uses the editor state to determine which buttons are active.

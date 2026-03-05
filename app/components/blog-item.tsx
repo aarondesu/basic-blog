@@ -1,9 +1,6 @@
 import dayjs from "dayjs";
 import { MessageCircleIcon } from "lucide-react";
 import { Link } from "react-router";
-import removeMd from "remove-markdown";
-import { generateText } from "@tiptap/core";
-import StarterKit from "@tiptap/starter-kit";
 
 interface Args {
   blog: {

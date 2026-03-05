@@ -1,6 +1,4 @@
 import { generateHTML } from "@tiptap/html";
-import Image from "@tiptap/extension-image";
-import StarterKit from "@tiptap/starter-kit";
 import { extenstions } from "./blog-editor/extensions";
 
 export default function ContentRenderer({ content }: { content: string }) {

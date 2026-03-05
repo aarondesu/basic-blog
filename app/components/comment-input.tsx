@@ -1,7 +1,6 @@
 import { useAppSelector } from "~/redux/hooks";
 import {
   FileUpload,
-  FileUploadDropzone,
   FileUploadItem,
   FileUploadItemDelete,
   FileUploadItemPreview,
@@ -14,18 +13,15 @@ import type { CommentInput } from "~/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { commentInputSchema } from "~/schemas";
 import { useFetcher } from "react-router";
-import { Textarea } from "./ui/textarea";
 import { Field } from "./ui/field";
 import { Button } from "./ui/button";
 import {
   ImageOffIcon,
   PaperclipIcon,
-  SendHorizonalIcon,
   SendHorizontalIcon,
-  UploadIcon,
   XIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useUploadImage } from "~/hooks/use-uplaod-image";
 import {

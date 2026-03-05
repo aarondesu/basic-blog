@@ -1,18 +1,8 @@
-import { Mark, PureEditorContent, useEditor } from "@tiptap/react";
-import { BubbleMenu, FloatingMenu } from "@tiptap/react/menus";
-import StarterKit from "@tiptap/starter-kit";
-import TextAlign from "@tiptap/extension-text-align";
-import Image from "@tiptap/extension-image";
-import Youtube from "@tiptap/extension-youtube";
-import { Markdown, MarkdownManager } from "@tiptap/markdown";
-import { ButtonGroup } from "../ui/button-group";
-import { Button } from "../ui/button";
-import { BoldIcon } from "lucide-react";
+import { PureEditorContent, useEditor } from "@tiptap/react";
 import BlogEditorToolbar from "./toolbar";
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
 import { extenstions } from "./extensions";
-import { ScrollArea } from "../ui/scroll-area";
 
 type Args = ComponentProps<"textarea"> & {
   onChange?: (markdown: string) => void;

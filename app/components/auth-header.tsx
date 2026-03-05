@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { Link, useLocation, useNavigation } from "react-router";
+import { Link } from "react-router";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export default function AuthHeader() {

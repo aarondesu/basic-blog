@@ -11,7 +11,6 @@ import { useCallback, useState } from "react";
 import { Button } from "./ui/button";
 import { useNavigation, useSubmit } from "react-router";
 import { Loader2Icon } from "lucide-react";
-import { useIsMobile } from "~/hooks/use-mobile";
 
 type Args = {
   children: React.ReactNode;
@@ -82,7 +81,6 @@ export function ConfirmDeleteBlogDialogTrigger({
  * @returns
  */
 export function ConfirmDeleteBlogDialog({ children, id, title }: Args) {
-  const isMobile = useIsMobile();
   const [open, setOpen] = useState<boolean>(false);
 
   return (
