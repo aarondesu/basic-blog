@@ -232,7 +232,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
               </Pagination>
             </div>
           </div>
-          <div className="space-y-4 border-t md:border-none pt-6 md:pt-0">
+          {/* <div className="space-y-4 border-t md:border-none pt-6 md:pt-0">
             <h4 className="font-bold text-lg">Other Blogs</h4>
             <div className="flex flex-col gap-4">
               {suggested?.map((blog) => (
@@ -261,7 +261,7 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                 </Link>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
