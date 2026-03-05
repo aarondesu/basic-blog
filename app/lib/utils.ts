@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function randString() {
-  let random = (Math.random() + 1).toString(36).substring(7);
+  let random = (Math.random() + 1).toString(36).substring(4);
   return random;
 }
 

@@ -149,7 +149,10 @@ export default function BlogForm({ mode, blog, error }: Args) {
                 <div className="flex items-center justify-between">
                   <FieldLabel>Image</FieldLabel>
                 </div>
-                {image_url && blog?.image_url && mode === "edit" ? (
+                {mode === "edit" &&
+                image_url &&
+                blog?.image_url &&
+                blog.image_url === image_url ? (
                   <div className="flex p-2.5 border items-center rounded-md justify-between">
                     <div className="flex items-center gap-2">
                       <img
@@ -227,9 +230,8 @@ export default function BlogForm({ mode, blog, error }: Args) {
                     <FileUploadList>
                       {files.map((file, index) => (
                         <FileUploadItem key={index} value={file}>
-                          <FileUploadItemPreview />
+                          <FileUploadItemPreview className="size-25" />
                           <FileUploadItemMetadata />
-                          <FileUploadItemProgress />
                           <FileUploadItemDelete asChild>
                             <Button
                               variant="ghost"
