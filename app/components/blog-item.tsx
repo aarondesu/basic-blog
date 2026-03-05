@@ -2,15 +2,17 @@ import dayjs from "dayjs";
 import { MessageCircleIcon } from "lucide-react";
 import { Link } from "react-router";
 import removeMd from "remove-markdown";
+import { generateText } from "@tiptap/core";
+import StarterKit from "@tiptap/starter-kit";
 
 interface Args {
   blog: {
     author: string | null;
-    body: string | null;
     comments: number | null;
     created_at: string | null;
     id: number | null;
     image_url: string | null;
+    short_description: string | null;
     title: string | null;
     updated_at: string | null;
     user_id: string | null;
@@ -18,6 +20,8 @@ interface Args {
 }
 
 export default function BlogItem({ blog }: Args) {
+  const generateText = blog.short_description ?? "";
+
   return (
     <div className="border rounded-md hover:bg-accent">
       <Link to={`/blogs/view/${blog.id}`} className="text-sm">
@@ -45,7 +49,7 @@ export default function BlogItem({ blog }: Args) {
               </span>
             </div>
             <div className="space-y-4">
-              <p className="text-sm">{removeMd(blog.body ?? "")}...</p>
+              <p className="text-sm">{generateText}</p>
               <p className="underline">Read More</p>
             </div>
           </div>

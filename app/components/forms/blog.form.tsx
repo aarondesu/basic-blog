@@ -26,6 +26,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
 import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
 import BlogEditor from "../blog-editor";
+import { generateText } from "@tiptap/core";
+import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import { extenstions } from "../blog-editor/extensions";
 
 type Args = {
   mode: "create" | "edit";
@@ -90,6 +94,11 @@ export default function BlogForm({ mode, blog, error }: Args) {
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
 
+    // Generate short description from body
+    formData.append(
+      "short_description",
+      generateText(JSON.parse(data.body), extenstions).slice(0, 300) + "...",
+    );
     Object.entries(data).forEach(([key, value]) => {
       if (!value) return;
       formData.append(key, String(value));

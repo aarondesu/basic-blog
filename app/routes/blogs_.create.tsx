@@ -18,6 +18,7 @@ export async function action({ request }: Route.ActionArgs) {
     title: formData.get("title") as string,
     image_url: (formData.get("image_url") as string) ?? undefined,
     body: formData.get("body") as string,
+    short_description: formData.get("short_description") as string,
   });
 
   // Check if error

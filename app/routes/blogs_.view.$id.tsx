@@ -36,6 +36,7 @@ import {
 } from "~/components/ui/tooltip";
 import MarkdownRenderer from "~/components/markdown-renderer";
 import removeMarkdown from "remove-markdown";
+import ContentRenderer from "~/components/content-renderer";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const client = getSupabaseServerClient(request);
@@ -192,7 +193,8 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
                   </div>
                 </div>
                 <div className="">
-                  <MarkdownRenderer content={blog.body ?? ""} />
+                  {/* <MarkdownRenderer content={blog.body ?? ""} /> */}
+                  <ContentRenderer content={blog.body ?? ""} />
                 </div>
               </div>
             </div>

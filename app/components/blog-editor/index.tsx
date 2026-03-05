@@ -11,6 +11,8 @@ import { BoldIcon } from "lucide-react";
 import BlogEditorToolbar from "./toolbar";
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
+import { extenstions } from "./extensions";
+import { ScrollArea } from "../ui/scroll-area";
 
 type Args = ComponentProps<"textarea"> & {
   onChange?: (markdown: string) => void;
@@ -23,22 +25,17 @@ type Args = ComponentProps<"textarea"> & {
  * @returns
  */
 export default function BlogEditor({ onChange, value, disabled, name }: Args) {
-  // Used to convert string to markdown text for editor when editing a blog, and also to convert editor content to markdown string when creating/updating a blog
-  const manager = new MarkdownManager({
-    extensions: [StarterKit, Markdown, TextAlign, Image, Youtube],
-  });
-
   const editor = useEditor({
-    extensions: [StarterKit, Markdown, TextAlign, Image, Youtube],
+    extensions: extenstions,
     immediatelyRender: false,
     editorProps: {
       attributes: {
         class: "prose prose-sm sm:prose-base focus:outline-none !max-w-none",
       },
     },
-    content: manager.parse(value as string),
+    content: value && JSON.parse(value ?? ""),
     onUpdate: ({ editor }) => {
-      onChange && onChange(editor.getMarkdown());
+      onChange && onChange(JSON.stringify(editor.getJSON()));
     },
   });
 

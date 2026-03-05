@@ -13,6 +13,7 @@ import {
   ListOrderedIcon,
   MinusIcon,
   QuoteIcon,
+  StrikethroughIcon,
   UnderlineIcon,
   YoutubeIcon,
 } from "lucide-react";
@@ -42,6 +43,10 @@ export const textFormatActions: ToolbarButton[] = [
   {
     icon: UnderlineIcon,
     onClick: (editor) => editor.chain().focus().toggleUnderline().run(),
+  },
+  {
+    icon: StrikethroughIcon,
+    onClick: (editor) => editor.chain().focus().toggleStrike().run(),
   },
 ];
 
@@ -110,27 +115,21 @@ export const externalActions: ToolbarButton[] = [
   {
     icon: ImagePlusIcon,
     onClick: (editor) => {
-      const { onUpload } = useUploadImage({
-        onUploadSuccess: (url) => {
-          editor.chain().focus().setImage({ src: url }).run();
-        },
-      });
-
       const url = window.prompt("Enter image url");
       if (url) {
         editor.chain().focus().setImage({ src: url }).run();
       }
     },
   },
-  // {
-  //   icon: YoutubeIcon,
-  //   onClick: (editor) => {
-  //     const url = window.prompt("Enter youtube video url");
-  //     if (url) {
-  //       editor.chain().focus().setYoutubeVideo({ src: url }).run();
-  //     }
-  //   },
-  // },
+  {
+    icon: YoutubeIcon,
+    onClick: (editor) => {
+      const url = window.prompt("Enter youtube video url");
+      if (url) {
+        editor.chain().focus().setYoutubeVideo({ src: url }).run();
+      }
+    },
+  },
 ];
 
 /**

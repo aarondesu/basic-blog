@@ -6,6 +6,7 @@ export function editorStateSelector(ctx: EditorStateSnapshot<Editor>) {
     isBold: ctx.editor.isActive("bold"),
     isItalic: ctx.editor.isActive("italic"),
     isUnderline: ctx.editor.isActive("underline"),
+    isStrikethrough: ctx.editor.isActive("strike"),
 
     // Lists
     isOrderedList: ctx.editor.isActive("orderedList"),
