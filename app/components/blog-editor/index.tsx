@@ -54,12 +54,12 @@ export default function BlogEditor({ onChange, value, disabled, name }: Args) {
         </div>
         <PureEditorContent
           editor={editor}
-          className="p-4"
+          className="p-4 min-h-75"
           disabled={disabled}
           name={name}
         />
       </div>
-      {editor && (
+      {/* {editor && (
         <FloatingMenu editor={editor}>
           <ButtonGroup>
             <Button size="icon">
@@ -68,7 +68,7 @@ export default function BlogEditor({ onChange, value, disabled, name }: Args) {
           </ButtonGroup>
         </FloatingMenu>
       )}
-      {editor && <BubbleMenu editor={editor}>Bubble</BubbleMenu>}
+      {editor && <BubbleMenu editor={editor}>Bubble</BubbleMenu>} */}
     </>
   );
 }
