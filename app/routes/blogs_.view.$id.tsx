@@ -121,81 +121,79 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
       <div className="container mx-auto space-y-6 my-4 px-4 md:px-0">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="space-y-6 flex-1">
-            <div className="">
-              <div className="space-y-4 flex-1">
-                <div className="grid gap-1.5">
-                  <div className="flex flex-row items-center gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
-                    <h1 className="text-3xl font-black">{blog?.title}</h1>
-                    {isAuthenticated && blog?.user_id === auth_user_id && (
-                      <ConfirmDeleteBlogDialog
-                        id={Number(blog?.id)}
-                        title={blog?.title ?? ""}
-                      >
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button type="button" variant="ghost" size="icon">
-                              <MoreHorizontalIcon />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuGroup>
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem asChild>
-                                <Link to={`/blogs/edit/${blog?.id}`}>
-                                  <PencilIcon />
-                                  Edit
-                                </Link>
+            <div className="space-y-4 flex-1">
+              <div className="grid gap-1.5 border-b pb-4">
+                <div className="flex flex-row items-center gap-4 md:gap-0 mb-2 md:mb-0 justify-between">
+                  <h1 className="text-3xl font-black">{blog?.title}</h1>
+                  {isAuthenticated && blog?.user_id === auth_user_id && (
+                    <ConfirmDeleteBlogDialog
+                      id={Number(blog?.id)}
+                      title={blog?.title ?? ""}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button type="button" variant="ghost" size="icon">
+                            <MoreHorizontalIcon />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link to={`/blogs/edit/${blog?.id}`}>
+                                <PencilIcon />
+                                Edit
+                              </Link>
+                            </DropdownMenuItem>
+                            <ConfirmDeleteBlogDialogTrigger>
+                              <DropdownMenuItem>
+                                <TrashIcon />
+                                Delete
                               </DropdownMenuItem>
-                              <ConfirmDeleteBlogDialogTrigger>
-                                <DropdownMenuItem>
-                                  <TrashIcon />
-                                  Delete
-                                </DropdownMenuItem>
-                              </ConfirmDeleteBlogDialogTrigger>
-                            </DropdownMenuGroup>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </ConfirmDeleteBlogDialog>
+                            </ConfirmDeleteBlogDialogTrigger>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </ConfirmDeleteBlogDialog>
+                  )}
+                </div>
+                <div className="flex gap-2 text-xs">
+                  <p className="font-medium text-muted-foreground">
+                    {isMobile ? (
+                      <Tooltip>
+                        <TooltipTrigger className="underline">
+                          {dayjs(blog?.created_at).format("MMM DD, YYYY")}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {dayjs(blog?.created_at).format(
+                            "MMM DD, YYYY HH:mm:ss",
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      dayjs(blog?.created_at).format("MMM DD, YYYY HH:mm:ss")
                     )}
-                  </div>
-                  <div className="flex gap-2">
-                    <p className="font-medium text-muted-foreground text-sm">
-                      {isMobile ? (
-                        <Tooltip>
-                          <TooltipTrigger className="underline">
-                            {dayjs(blog?.created_at).format("MMM DD, YYYY")}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {dayjs(blog?.created_at).format(
-                              "MMM DD, YYYY HH:mm:ss",
-                            )}
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        dayjs(blog?.created_at).format("MMM DD, YYYY HH:mm:ss")
-                      )}
+                  </p>
+                  <span className="flex gap-4">
+                    <p className="text-muted-foreground font-bold">
+                      by {blog?.author}
                     </p>
-                    <span className="flex gap-4">
-                      <p className="text-sm text-muted-foreground font-bold">
-                        by {blog?.author}
-                      </p>
-                      {blog.updated_at &&
-                        dayjs(blog.created_at).diff(dayjs(blog.updated_at)) !==
-                          0 && (
-                          <p className="font-medium text-muted-foreground text-sm">
-                            edited on{" "}
-                            {dayjs(blog.updated_at).format(
-                              "MMM DD, YYYY HH:mm:ss",
-                            )}
-                          </p>
-                        )}
-                    </span>
-                  </div>
+                    {blog.updated_at &&
+                      dayjs(blog.created_at).diff(dayjs(blog.updated_at)) !==
+                        0 && (
+                        <p className="font-medium text-muted-foreground">
+                          edited on{" "}
+                          {dayjs(blog.updated_at).format(
+                            "MMM DD, YYYY HH:mm:ss",
+                          )}
+                        </p>
+                      )}
+                  </span>
                 </div>
-                <div className="">
-                  {/* <MarkdownRenderer content={blog.body ?? ""} /> */}
-                  <ContentRenderer content={blog.body ?? ""} />
-                </div>
+              </div>
+              <div className="">
+                {/* <MarkdownRenderer content={blog.body ?? ""} /> */}
+                <ContentRenderer content={blog.body ?? ""} />
               </div>
             </div>
             <div className="border-t pt-3 space-y-4">
