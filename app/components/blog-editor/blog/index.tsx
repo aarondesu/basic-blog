@@ -2,7 +2,7 @@ import { EditorContent, PureEditorContent, useEditor } from "@tiptap/react";
 import BlogEditorToolbar from "./toolbar";
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
-import { extenstions } from "./extensions";
+import { extenstions } from "../extensions";
 
 type Args = ComponentProps<"textarea"> & {
   onChange?: (markdown: string) => void;

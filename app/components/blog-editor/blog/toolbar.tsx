@@ -1,10 +1,10 @@
 import { Editor, useEditorState } from "@tiptap/react";
-import { Button } from "../ui/button";
-import { ButtonGroup } from "../ui/button-group";
+import { Button } from "../../ui/button";
+import { ButtonGroup } from "../../ui/button-group";
 
-import { Toggle } from "../ui/toggle";
-import { editorStateSelector } from "./state";
-import { allActions } from "./actions";
+import { Toggle } from "../../ui/toggle";
+import { editorStateSelector } from "../state";
+import { allActions } from "../actions";
 
 export default function BlogEditorToolbar({ editor }: { editor: Editor }) {
   const editorState = useEditorState({

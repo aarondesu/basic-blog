@@ -24,7 +24,7 @@ import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
 import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
-import BlogEditor from "../blog-editor";
+import BlogEditor from "../blog-editor/blog";
 import { generateText } from "@tiptap/core";
 import { extenstions } from "../blog-editor/extensions";
 
