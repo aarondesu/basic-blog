@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { useUploadImage } from "~/hooks/use-uplaod-image";
+import { useUploadImage } from "~/hooks/use-upload-image";
 import {
   InputGroup,
   InputGroupAddon,

@@ -1,6 +1,10 @@
 import type { Editor } from "@tiptap/react";
 import type { editorStateSelector } from "./state";
 import {
+  AlignCenterIcon,
+  AlignJustifyIcon,
+  AlignLeftIcon,
+  AlignRightIcon,
   BoldIcon,
   CodeIcon,
   Heading1Icon,
@@ -17,6 +21,8 @@ import {
   UnderlineIcon,
   YoutubeIcon,
 } from "lucide-react";
+import { toast } from "sonner";
+import { uploadImage } from "~/hooks/use-upload-image";
 
 /**
  * Toolbar for the blog editor, with buttons for text formatting, headings, lists, etc. It uses the editor state to determine which buttons are active.
@@ -118,10 +124,33 @@ export const externalActions: ToolbarButton[] = [
   {
     icon: ImagePlusIcon,
     onClick: (editor) => {
-      const url = window.prompt("Enter image url");
-      if (url) {
-        editor.chain().focus().setImage({ src: url }).run();
-      }
+      // Create input element with file as it's type to accept image files
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.multiple = false;
+
+      input.onchange = async () => {
+        const imageFile = input.files?.[0]; // Get selected image file
+        if (!imageFile) return;
+
+        editor.setEditable(false);
+        toast.promise(uploadImage(imageFile), {
+          loading: "Uploading image to server...",
+          success: (result) => {
+            // Add image to editor
+            editor.chain().focus().setImage({ src: result }).run();
+
+            return "Successfully uploaded image!";
+          },
+          error: (error) => error.message,
+          finally: () => editor.setEditable(true),
+        });
+      };
+
+      // Trigger click command
+      input.click();
+      return;
     },
   },
   {
@@ -135,12 +164,32 @@ export const externalActions: ToolbarButton[] = [
   },
 ];
 
+export const alignActions: ToolbarButton[] = [
+  {
+    icon: AlignLeftIcon,
+    onClick: (editor) => editor.chain().focus().setTextAlign("left").run(),
+  },
+  {
+    icon: AlignCenterIcon,
+    onClick: (editor) => editor.chain().focus().setTextAlign("center").run(),
+  },
+  {
+    icon: AlignRightIcon,
+    onClick: (editor) => editor.chain().focus().setTextAlign("right").run(),
+  },
+  {
+    icon: AlignJustifyIcon,
+    onClick: (editor) => editor.chain().focus().setTextAlign("justify").run(),
+  },
+];
+
 /**
  * All toolbar actions, grouped by category. This is used to render the toolbar buttons in the BlogEditorToolbar component.
  */
 export const allActions: ToolbarButton[][] = [
   textFormatActions,
   headingActions,
+  alignActions,
   listActions,
   otherActions,
   externalActions,

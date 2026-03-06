@@ -12,23 +12,20 @@ import {
   FileUploadItemDelete,
   FileUploadItemMetadata,
   FileUploadItemPreview,
-  FileUploadItemProgress,
   FileUploadList,
   FileUploadTrigger,
 } from "../ui/file-upload";
-import { Loader2Icon, Trash2Icon, UploadIcon, XIcon } from "lucide-react";
+import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { getFilenameFromUrl } from "~/lib/utils";
-import { useUploadImage } from "~/hooks/use-uplaod-image";
+import { useUploadImage } from "~/hooks/use-upload-image";
 import { blogSchema } from "~/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type z from "zod";
 import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
 import BlogEditor from "../blog-editor";
 import { generateText } from "@tiptap/core";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
 import { extenstions } from "../blog-editor/extensions";
 
 type Args = {

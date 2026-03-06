@@ -1,4 +1,4 @@
-import { PureEditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, PureEditorContent, useEditor } from "@tiptap/react";
 import BlogEditorToolbar from "./toolbar";
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
@@ -42,9 +42,9 @@ export default function BlogEditor({ onChange, value, disabled, name }: Args) {
         <div className="border-b p-2">
           <BlogEditorToolbar editor={editor} />
         </div>
-        <PureEditorContent
+        <EditorContent
           editor={editor}
-          className="p-4 min-h-75"
+          className="p-4 min-h-75 h-full"
           disabled={disabled}
           name={name}
         />
