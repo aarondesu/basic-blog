@@ -39,9 +39,7 @@ export default function BlogEditor({ onChange, value, disabled, name }: Args) {
           "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
         )}
       >
-        <div className="border-b p-2">
-          <BlogEditorToolbar editor={editor} />
-        </div>
+        <BlogEditorToolbar editor={editor} />
         <EditorContent
           editor={editor}
           className="p-4 min-h-75 h-full"

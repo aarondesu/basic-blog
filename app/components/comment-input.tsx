@@ -1,37 +1,18 @@
 import { useAppSelector } from "~/redux/hooks";
-import {
-  FileUpload,
-  FileUploadItem,
-  FileUploadItemDelete,
-  FileUploadItemPreview,
-  FileUploadItemProgress,
-  FileUploadList,
-  FileUploadTrigger,
-} from "./ui/file-upload";
+import { FileUpload } from "./ui/file-upload";
 import { Controller, useForm } from "react-hook-form";
 import type { CommentInput } from "~/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { commentInputSchema } from "~/schemas";
 import { useFetcher } from "react-router";
-import { Field } from "./ui/field";
+import { Field, FieldError } from "./ui/field";
 import { Button } from "./ui/button";
-import {
-  ImageOffIcon,
-  PaperclipIcon,
-  SendHorizontalIcon,
-  XIcon,
-} from "lucide-react";
+import { SendIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useUploadImage } from "~/hooks/use-upload-image";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupTextarea,
-} from "./ui/input-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
+import CommentEditor from "./blog-editor/comment";
 
 type Args = {
   blog_id?: number;
@@ -59,19 +40,13 @@ export default function CommentInput({
       body: comment?.body ?? "",
       user_id: comment?.user_id ?? user_id,
       blog_id: comment?.blog_id ?? blog_id,
-      image_url: comment?.image_url,
     },
   });
 
-  const { body, image_url } = form.watch(); // Used for disabling submit button if comment body is missing
+  const { body } = form.watch(); // Used for disabling submit button if comment body is missing
 
   // Handle uploading of images
   const [files, setFiles] = useState<File[]>([]);
-  const { onUpload, isUploading } = useUploadImage({
-    onUploadSuccess: (image_url) => {
-      form.setValue("image_url", image_url);
-    },
-  });
 
   // Handle submitting of form
   const onSubmit = form.handleSubmit((data) => {
@@ -93,7 +68,7 @@ export default function CommentInput({
           loading: "Posting comment...",
           success: () => {
             form.resetField("body"); // Clear the text area after posting
-            form.resetField("image_url");
+
             setFiles([]);
             onSuccess?.();
             return "Successfully posted comment!";
@@ -110,7 +85,7 @@ export default function CommentInput({
           loading: "Posting comment...",
           success: () => {
             form.resetField("body"); // Clear the text area after posting
-            form.resetField("image_url");
+
             setFiles([]);
             onSuccess?.();
             return "Successfully updated comment!";
@@ -127,133 +102,30 @@ export default function CommentInput({
 
   // Handle image removal (only on edit)
   const { createDialog } = useConfirmationDialog();
-  const onRemoveImage = useCallback(() => {
-    createDialog({
-      title: "Delete Image",
-      description:
-        "Are you sure you want to remove the image? Action is irreversible.",
-      onConfirm: async () => {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-
-        form.setValue("image_url", undefined);
-      },
-    });
-  }, []);
 
   return (
-    <FileUpload
-      accept="image/*"
-      value={files}
-      onValueChange={setFiles}
-      maxSize={10 * 1024 * 1024}
-      maxFiles={1}
-      onFileReject={onReject}
-      onUpload={onUpload}
-      disabled={isUploading}
-    >
-      <fetcher.Form onSubmit={onSubmit}>
-        <div className="flex flex-col">
-          <Controller
-            name="body"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <div className="grid w-full gap-6">
-                  <InputGroup className="bg-white">
-                    <InputGroupTextarea
-                      {...field}
-                      placeholder="Add your comment here"
-                      disabled={isLoading || isUploading}
-                    />
-                    {mode === "edit" && form.getValues("image_url") && (
-                      <InputGroupAddon align="block-start">
-                        <img
-                          src={form.getValues("image_url")}
-                          className=" max-w-full md:max-w-xl object-cover"
-                        />
-                      </InputGroupAddon>
-                    )}
-                    {files.length !== 0 && (
-                      <InputGroupAddon align="block-start">
-                        <FileUploadList orientation="horizontal">
-                          {files.map((file, index) => (
-                            <FileUploadItem key={index} value={file}>
-                              <FileUploadItemPreview className="size-25 [&>svg:size-5] ">
-                                <FileUploadItemProgress variant="fill" />
-                              </FileUploadItemPreview>
-                              <FileUploadItemDelete asChild>
-                                <Button
-                                  variant="secondary"
-                                  type="button"
-                                  size="icon-sm"
-                                  className="absolute -top-1 -right-1 size-4 shrink-0 cursor cursor-pointer rounded-full "
-                                  onClick={() => {
-                                    form.setValue("image_url", undefined);
-                                  }}
-                                >
-                                  <XIcon className="size-2.5" />
-                                </Button>
-                              </FileUploadItemDelete>
-                            </FileUploadItem>
-                          ))}
-                        </FileUploadList>
-                      </InputGroupAddon>
-                    )}
-                    <InputGroupAddon
-                      align="block-end"
-                      className="flex justify-end"
-                    >
-                      {mode === "edit" && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <InputGroupButton
-                              variant="outline"
-                              type="button"
-                              size="icon-sm"
-                              onClick={onRemoveImage}
-                              disabled={!image_url}
-                            >
-                              <ImageOffIcon />
-                            </InputGroupButton>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Remove image</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                      <FileUploadTrigger asChild>
-                        <InputGroupButton
-                          type="button"
-                          size="icon-sm"
-                          variant="outline"
-                          disabled={isLoading || isUploading}
-                        >
-                          <PaperclipIcon />
-                        </InputGroupButton>
-                      </FileUploadTrigger>
-                      <InputGroupButton
-                        type="submit"
-                        size="icon-sm"
-                        variant="default"
-                        disabled={
-                          isLoading ||
-                          isUploading ||
-                          body.length === 0 ||
-                          (mode === "edit" &&
-                            body === comment?.body &&
-                            image_url === comment.image_url) // Check if changes were made
-                        }
-                      >
-                        <SendHorizontalIcon />
-                      </InputGroupButton>
-                    </InputGroupAddon>
-                  </InputGroup>
-                </div>
-              </Field>
-            )}
-          />
+    <fetcher.Form onSubmit={onSubmit}>
+      <div className="flex flex-col gap-2">
+        <Controller
+          name="body"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <CommentEditor {...field} />
+              {/* {fieldState.error && <FieldError errors={[fieldState.error]} />} */}
+            </Field>
+          )}
+        />
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            size="icon-sm"
+            disabled={body === "" || isLoading}
+          >
+            <SendIcon />
+          </Button>
         </div>
-      </fetcher.Form>
-    </FileUpload>
+      </div>
+    </fetcher.Form>
   );
 }
