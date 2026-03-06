@@ -4,6 +4,36 @@ import type { FileUploadProps } from "~/components/ui/file-upload";
 import { getSupabaseBrowserClient } from "~/lib/supabase";
 import { randString } from "~/lib/utils";
 
+export async function uploadImage(file: File): Promise<string> {
+  const client = getSupabaseBrowserClient();
+
+  return new Promise<string>(async (resolve, reject) => {
+    // Upload file into storage
+    const uploadResult = await client.storage
+      .from("images")
+      .upload(`${randString()}-${randString()}`, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    // Check if there was any errors uploading
+    if (uploadResult.error) {
+      return reject({
+        name: uploadResult.error.name,
+        message: uploadResult.error.message,
+      });
+    }
+
+    // Get the publicly signed url of the image
+    const result = await client.storage
+      .from("images")
+      .getPublicUrl(uploadResult.data.path);
+
+    // resolve the promise by returning the url
+    return resolve(result.data.publicUrl);
+  });
+}
+
 export function useUploadImage({
   onUploadSuccess,
 }: {
@@ -20,25 +50,15 @@ export function useUploadImage({
         const uploadPromises = files.map(async (file) => {
           if (!client) return;
 
-          const bucketResult = await client.storage
-            .from("images")
-            .upload(`${randString()}-${randString()}`, file, {
-              cacheControl: "3600",
-              upsert: false,
+          // Upload the image using the promise function
+          uploadImage(file)
+            .then((url) => onUploadSuccess(url))
+            .catch((error) => {
+              onError(file, {
+                name: error.name,
+                message: error.message,
+              });
             });
-
-          if (bucketResult.error) {
-            onError(file, {
-              name: bucketResult.error.name,
-              message: bucketResult.error.message,
-            });
-          }
-
-          const { data } = await client.storage
-            .from("images")
-            .getPublicUrl(bucketResult.data?.path ?? "");
-
-          onUploadSuccess(data.publicUrl);
         });
 
         toast.promise(Promise.all(uploadPromises), {
