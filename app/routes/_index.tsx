@@ -2,8 +2,6 @@ import { data, Link } from "react-router";
 import type { Route } from "./+types/_index";
 import Hero from "~/components/hero";
 import { getSupabaseServerClient } from "~/lib/supabase";
-import dayjs from "dayjs";
-import type { BlogData } from "~/types";
 import BlogItem from "~/components/blog-item";
 
 export function meta({}: Route.MetaArgs) {
@@ -39,7 +37,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
     <div className="">
       <Hero
         title="Welcome to myBlog"
-        description="What is Lorem Ipsum? Lorem Ipsum is simply dummy text of the printing and typesetting industry."
+        description="A place where anyone can write, share ideas, and tell their stories. Discover blogs from people around the world or start your own in seconds."
       />
       <div className="container mx-auto my-10 px-4 md:px-0">
         <div className="">
