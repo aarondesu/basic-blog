@@ -4,10 +4,6 @@ import type { AnyExtension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import FileHandler from "@tiptap/extension-file-handler";
-
-import { getSupabaseBrowserClient } from "~/lib/supabase";
-import { randString } from "~/lib/utils";
-import { toast } from "sonner";
 import { uploadImage } from "~/hooks/use-upload-image";
 
 /**
