@@ -3,6 +3,7 @@ import { extenstions } from "../extensions";
 import { useEffect, type ComponentProps } from "react";
 import { cn } from "~/lib/utils";
 import CommentEditorToolbar from "./toolbar";
+import { CharacterCount } from "@tiptap/extensions";
 
 type Args = ComponentProps<"input"> & {
   value?: string;
@@ -19,7 +20,12 @@ export default function CommentEditor({
   ...props
 }: Args) {
   const editor = useEditor({
-    extensions: extenstions,
+    extensions: [
+      // CharacterCount.configure({
+      //   limit: 3000, // Limits the comment section to only have at 1000 characters at max to avoid spam
+      // }),
+      ...extenstions,
+    ],
     immediatelyRender: false,
     editorProps: {
       attributes: {
@@ -47,7 +53,7 @@ export default function CommentEditor({
       data-disabled={disabled}
       className={cn(
         className,
-        "border rounded-md",
+        "border rounded-md bg-background",
         "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
         props["data-invalid"] === true &&
           "border-ring ring-destructive/50 ring-[3px]",
