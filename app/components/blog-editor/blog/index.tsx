@@ -2,7 +2,7 @@ import { EditorContent, PureEditorContent, useEditor } from "@tiptap/react";
 import BlogEditorToolbar from "./toolbar";
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
-import { extenstions } from "./extensions";
+import { extenstions } from "../extensions";
 
 type Args = ComponentProps<"textarea"> & {
   onChange?: (markdown: string) => void;
@@ -39,9 +39,7 @@ export default function BlogEditor({ onChange, value, disabled, name }: Args) {
           "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
         )}
       >
-        <div className="border-b p-2">
-          <BlogEditorToolbar editor={editor} />
-        </div>
+        <BlogEditorToolbar editor={editor} />
         <EditorContent
           editor={editor}
           className="p-4 min-h-75 h-full"

@@ -19,6 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import ContentRenderer from "./content-renderer";
 
 type Args = {
   id: number;
@@ -75,48 +76,6 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
               on {dayjs(comment.created_at).format("MMMM DD, YYYY HH:mm:ss")}
             </span>
           </span>
-          {/* {comment.user_id === user_id && (
-            <div
-              className={cn(
-                "justify-end flex",
-                !isEditing &&
-                  "md:invisible md:group-hover:visible md:opacity-0 md:group-hover:opacity-100 md:ease-in-out md:duration-200", // Animation
-              )}
-            >
-              <ButtonGroup className="">
-                <Toggle
-                  type="button"
-                  variant="default"
-                  size="sm"
-                  onPressedChange={(p) => {
-                    if (isEditing) {
-                      createDialog({
-                        title: "Discard Changes",
-                        description:
-                          "Are you sure you want to discard the chanags made?",
-                        onConfirm: () => {
-                          setEditing((editing) => (editing = p));
-                        },
-                      });
-                    } else {
-                      setEditing((editing) => (editing = p));
-                    }
-                  }}
-                  pressed={isEditing}
-                >
-                  <PencilIcon />
-                </Toggle>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={onDeleteClick}
-                >
-                  <TrashIcon />
-                </Button>
-              </ButtonGroup>
-            </div>
-          )} */}
           {comment.user_id === user_id && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -156,9 +115,6 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
           )}
         </span>
       </div>
-      {comment.image_url && !isEditing && (
-        <img src={comment.image_url} className="w-full object-cover md:w-lg" />
-      )}
       <div className="bg-accent rounded-md p-4">
         {comment.user_id === user_id && isEditing ? (
           <CommentInput
@@ -167,7 +123,6 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
             comment={{
               blog_id: comment.blog_id,
               body: comment.body,
-              image_url: comment.image_url ?? undefined,
               user_id: comment.user_id,
             }}
             onSuccess={() => {
@@ -175,7 +130,7 @@ export default function Comment(comment: React.PropsWithoutRef<Args>) {
             }}
           />
         ) : (
-          <p className="text-sm whitespace-pre-wrap">{comment.body}</p>
+          <ContentRenderer content={comment.body} />
         )}
       </div>
     </div>

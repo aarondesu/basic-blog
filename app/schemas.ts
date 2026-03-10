@@ -1,4 +1,6 @@
+import { generateText } from "@tiptap/react";
 import { z } from "zod";
+import { extenstions } from "./components/blog-editor/extensions";
 
 export const loginSchema = z.object({
   email: z.email().min(1, "Email is required"),
@@ -45,9 +47,13 @@ export const blogSchema = z.object({
   createdAt: z.date().optional(),
 });
 
-export const commentInputSchema = z.object({
-  user_id: z.string(),
-  blog_id: z.number(),
-  body: z.string().min(1, "Body is required"),
-  image_url: z.string().optional(),
-});
+export const commentInputSchema = z
+  .object({
+    user_id: z.string(),
+    blog_id: z.number(),
+    body: z.string().min(1, "Body is required"),
+  })
+  .refine((data) => generateText(JSON.parse(data.body), extenstions) !== "", {
+    message: "Your comment is empty. Write something before posting.",
+    path: ["body"],
+  });
