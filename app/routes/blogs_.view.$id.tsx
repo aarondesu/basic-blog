@@ -3,7 +3,6 @@ import type { Route } from "./+types/blogs_.view.$id";
 import { data, Link } from "react-router";
 import dayjs from "dayjs";
 import { useAppSelector } from "~/redux/hooks";
-import { ButtonGroup } from "~/components/ui/button-group";
 import { Button } from "~/components/ui/button";
 import { MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react";
 import {
@@ -34,7 +33,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import MarkdownRenderer from "~/components/markdown-renderer";
 import removeMarkdown from "remove-markdown";
 import ContentRenderer from "~/components/content-renderer";
 
@@ -108,15 +106,6 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
           src={blog.image_url}
           className="w-full md:h-[calc(100vh-70px)] max-h-360 object-cover object-center"
         />
-        // <div className="relative">
-        //   <img
-        //     src={blog.image_url}
-        //     className="w-full h-[calc(100vh-70px)] max-h-360 object-cover object-center"
-        //   />
-        //   <div className="absolute top-[50%] left-[50%]">
-        //     <h2 className="text-black text-5xl">{blog.title}</h2>
-        //   </div>
-        // </div>
       )}
       <div className="container mx-auto space-y-6 my-4 px-4 md:px-0">
         <div className="flex flex-col md:flex-row gap-4">
@@ -230,36 +219,6 @@ export default function ViewBlog({ loaderData }: Route.ComponentProps) {
               </Pagination>
             </div>
           </div>
-          {/* <div className="space-y-4 border-t md:border-none pt-6 md:pt-0">
-            <h4 className="font-bold text-lg">Other Blogs</h4>
-            <div className="flex flex-col gap-4">
-              {suggested?.map((blog) => (
-                <Link to={`/blogs/view/${blog.id}`} key={blog.id}>
-                  <div
-                    key={blog.id}
-                    className="flex flex-col gap-2 border p-4 hover:bg-accent min-w-60 w-full md:max-w-60"
-                  >
-                    {blog.image_url && (
-                      <img
-                        src={blog.image_url}
-                        className="w-full md:max-w-60"
-                      />
-                    )}
-                    <div className="">
-                      <h4 className="font-bold max-w-60 line-clamp-1">
-                        {blog.title}
-                      </h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {blog.body}
-                      {blog.body && blog.body?.length >= 100 && "..."}
-                    </p>
-                    <p className="underline mt-3 text-sm">Read More</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div> */}
         </div>
       </div>
     </div>

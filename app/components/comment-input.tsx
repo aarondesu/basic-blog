@@ -1,7 +1,6 @@
 import { useAppSelector } from "~/redux/hooks";
-import { FileUpload } from "./ui/file-upload";
 import { Controller, useForm } from "react-hook-form";
-import type { CommentInput } from "~/types";
+import type { Comment, CommentInput } from "~/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { commentInputSchema } from "~/schemas";
 import { useFetcher } from "react-router";
@@ -10,22 +9,19 @@ import { Button } from "./ui/button";
 import { SendIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { useUploadImage } from "~/hooks/use-upload-image";
 import { useConfirmationDialog } from "~/context/use-confirmation-dialog";
 import CommentEditor from "./blog-editor/comment";
 
 type Args = {
   blog_id?: number;
   mode?: "create" | "edit";
-  comment_id?: number;
   onSuccess?: () => void;
-  comment?: Partial<CommentInput>;
+  comment?: Partial<Comment>;
 };
 
 export default function CommentInput({
   blog_id,
   mode = "create",
-  comment_id,
   onSuccess,
   comment,
 }: Args) {
@@ -78,7 +74,7 @@ export default function CommentInput({
     } else if (mode === "edit") {
       toast.promise(
         fetcher.submit(formData, {
-          action: `/comments/update/${comment_id}`,
+          action: `/comments/update/${comment?.id}`,
           method: "PUT",
         }),
         {

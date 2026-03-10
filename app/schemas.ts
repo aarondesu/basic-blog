@@ -57,3 +57,12 @@ export const commentInputSchema = z
     message: "Your comment is empty. Write something before posting.",
     path: ["body"],
   });
+
+export const commentSchema = z.object({
+  id: z.number().optional(),
+  blog_id: z.number(),
+  user_id: z.string(),
+  body: z.string(),
+  image_url: z.string().nullable(),
+  created_at: z.string(),
+});
